@@ -10,19 +10,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutterdemo/home.dart';
 import 'package:flutterdemo/login.dart';
 import 'package:flutterdemo/utils/auth.dart';
+import 'package:flutterdemo/utils/constants.dart';
 
 final FlutterAppAuth appAuth = FlutterAppAuth();
 const FlutterSecureStorage secureStorage = FlutterSecureStorage();
-
-/// -----------------------------------
-///           Auth0 Variables
-/// -----------------------------------
-
-const String AUTH0_DOMAIN = 'gateway.api.cloud.wso2.com';
-const String AUTH0_CLIENT_ID = 'fO0rk7lzuWZKRofN13zmZiQc7M8a';
-
-const String AUTH0_REDIRECT_URI = 'com.auth0.flutterdemo://login-callback';
-const String AUTH0_ISSUER = 'https://$AUTH0_DOMAIN';
 
 /// -----------------------------------
 ///                 App
@@ -55,7 +46,7 @@ class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
 
   Future<void> initAction() async {
     final String storedRefreshToken =
-    await secureStorage.read(key: 'refresh_token');
+        await secureStorage.read(key: 'refresh_token');
     if (storedRefreshToken == null) return;
 
     setState(() {
@@ -66,7 +57,8 @@ class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
       final String accessToken = await refreshAccessToken(
           clientId: AUTH0_CLIENT_ID,
           redirectUri: AUTH0_REDIRECT_URI,
-          issuer: AUTH0_ISSUER);
+          issuer: AUTH0_ISSUER,
+          domain: AUTH0_DOMAIN);
 
       setState(() {
         isBusy = false;
@@ -91,6 +83,7 @@ class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: const Text('WSO2 Cloud Flutter Demo'),
           actions: isLoggedIn
@@ -105,12 +98,11 @@ class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
               : <Widget>[],
         ),
         body: Center(
+            child: SingleChildScrollView(
           child: isBusy
               ? const CircularProgressIndicator()
-              : isLoggedIn
-                  ? Home(name)
-                  : Login(loginAction, errorMessage),
-        ),
+              : isLoggedIn ? Home() : Login(loginAction, errorMessage),
+        )),
       ),
     );
   }

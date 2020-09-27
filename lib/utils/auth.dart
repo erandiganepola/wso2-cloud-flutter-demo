@@ -45,16 +45,19 @@ Future<String> login(String domain, String clientId, String redirectUri) async {
 }
 
 Future<String> refreshAccessToken(
-    {String clientId, String redirectUri, String issuer}) async {
+    {String clientId, String redirectUri, String issuer, String domain}) async {
   final String storedRefreshToken =
       await secureStorage.read(key: 'refresh_token');
 
+  final AuthorizationServiceConfiguration serviceConfiguration =
+      AuthorizationServiceConfiguration('https://$domain/authorize',
+          'https://$domain/token?tenantDomain=vlgunarathne');
+
   final TokenResponse response = await appAuth.token(TokenRequest(
-    clientId,
-    redirectUri,
-    issuer: issuer,
-    refreshToken: storedRefreshToken,
-  ));
+      clientId, redirectUri,
+      issuer: issuer,
+      refreshToken: storedRefreshToken,
+      serviceConfiguration: serviceConfiguration));
 
   await secureStorage.write(key: 'refresh_token', value: response.refreshToken);
   await secureStorage.write(key: 'access_token', value: response.accessToken);

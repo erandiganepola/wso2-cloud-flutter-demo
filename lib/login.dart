@@ -15,11 +15,13 @@ class Login extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        RaisedButton(
+        RaisedButton.icon(
+          color: Colors.orange,
+          icon: Icon(Icons.account_circle),
+          label: Text('Login to Cloud'),
           onPressed: () async {
             await loginAction();
           },
-          child: const Text('Login'),
         ),
         Text(loginError ?? ''),
       ],
