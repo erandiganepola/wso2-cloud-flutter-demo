@@ -6,6 +6,7 @@ Read [Get Started with Flutter Authentication](https://auth0.com/blog/get-starte
 
 ## What You'll Build
 
+
 ## Project Setup
 
 - Clone project.
@@ -16,7 +17,12 @@ Read [Get Started with Flutter Authentication](https://auth0.com/blog/get-starte
 flutter pub get
 ```
 
-## Create an application and change settings in Keymanager
+## Prerequisites to setup in Cloud
+- Create an API by setting endpoint to "https://restcountries.eu/#api-endpoints-capital-city"
+- Create an application by visiting API Cloud Store by enabling code grant with redirect URL
+- Subscribe to that API from the created applicaion
+- Signin to WSO2 Keymanager and enable `Allow Authentication without client secret` configuration under the OIDC service provider config
+- Set relevant values in cloned project's 'constants.dart' file
 
 ## Run the Application
 
