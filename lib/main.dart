@@ -55,10 +55,10 @@ class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
 
     try {
       final String accessToken = await refreshAccessToken(
-          clientId: AUTH0_CLIENT_ID,
-          redirectUri: AUTH0_REDIRECT_URI,
-          issuer: AUTH0_ISSUER,
-          domain: AUTH0_DOMAIN);
+          clientId: AUTH_CLIENT_ID,
+          redirectUri: AUTH_REDIRECT_URI,
+          issuer: AUTH_ISSUER,
+          domain: AUTH_DOMAIN);
 
       setState(() {
         isBusy = false;
@@ -122,7 +122,7 @@ class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
     });
 
     final String accessToken =
-        await login(AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_REDIRECT_URI);
+        await login(AUTH_DOMAIN, AUTH_CLIENT_ID, AUTH_REDIRECT_URI);
 
     if (accessToken != null) {
       setState(() {
