@@ -1,8 +1,6 @@
 # Get Started with Flutter Authentication
 
-Read [Get Started with Flutter Authentication](https://auth0.com/blog/get-started-with-flutter-authentication/) to learn how to build the application hosted in this repository.
-
-[Flutter](https://flutter.dev/) is Google's cross-platform UI toolkit created to help developers build expressive and beautiful mobile applications. In the article, you will learn how to build and secure a Flutter application with Auth0 using the open-source [AppAuth](https://appauth.io/) library with the [`flutter_appauth`](https://pub.dev/packages/flutter_appauth) wrapper plugin.
+[Flutter](https://flutter.dev/) is Google's cross-platform UI toolkit created to help developers build expressive and beautiful mobile applications. In the article, you will learn how to build and secure a Flutter application with WSO2 API Cloud. This app demonstrates how a consumer can write a mobile app to consume WSO2 API Cloud APIs. Mainly about how to get a token, invoke an API, login, logout of application etc.
 
 ## What You'll Build
 
@@ -26,7 +24,7 @@ flutter pub get
 
 ## Run the Application
 
-Launch either the [iOS simulator](https://flutter.dev/docs/get-started/install/macos#set-up-the-ios-simulator) or [Android emulators](https://flutter.dev/docs/get-started/install/macos#set-up-the-android-emulator), then run the application on all available devices like so:
+ - Enabled developer options and USB Debugging in mobile phone’s settings OR launch either the [iOS simulator](https://flutter.dev/docs/get-started/install/macos#set-up-the-ios-simulator) or [Android emulators](https://flutter.dev/docs/get-started/install/macos#set-up-the-android-emulator), then run the application on all available devices from your IDE or using following command:
 
 ```bash
 flutter run -d all
