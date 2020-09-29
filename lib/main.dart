@@ -5,6 +5,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutterdemo/home.dart';
@@ -72,6 +73,15 @@ class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
 
   @override
   Widget build(BuildContext context) {
+    Widget content;
+    if (isBusy) {
+      content = const CircularProgressIndicator();
+    } else if (isLoggedIn) {
+      content = const Home();
+    } else {
+      content = Login(loginAction, errorMessage);
+    }
+
     return MaterialApp(
       title: 'WSO2 Cloud Flutter Demo',
       theme: ThemeData(
@@ -83,7 +93,6 @@ class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: Scaffold(
-        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: const Text('WSO2 Cloud Flutter Demo'),
           actions: isLoggedIn
@@ -97,12 +106,11 @@ class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
                 ]
               : <Widget>[],
         ),
-        body: Center(
-            child: SingleChildScrollView(
-          child: isBusy
-              ? const CircularProgressIndicator()
-              : isLoggedIn ? Home() : Login(loginAction, errorMessage),
-        )),
+        body: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          alignment: Alignment.center,
+          child: content,
+        ),
       ),
     );
   }
