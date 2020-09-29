@@ -6,10 +6,32 @@ In this project, you will learn how to build and secure a simple Flutter mobile 
 
 ## What You'll Build
 
+You will build a mobile app with following UIs:
+
+- Login UIs
+
+| <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/login.jpeg" alt="Your image title" height="450" width="250"/> | <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/browserLogin1.jpeg" alt="Your image title" height="450" width="250"/> | <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/browserLogin2.jpeg" alt="Your image title" height="450" width="250"/> |
+
+- Home / Search UIs
+
+| <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/home.jpeg" alt="Your image title" height="450" width="250"/>
+| <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/search1.jpeg" alt="Your image title" height="450" width="250"/> | <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/search2.jpeg" alt="Your image title" height="450" width="250"/> 
+
+## Setup your Development Environment
+Development Environment, one of:
+- [Android Studio](https://developer.android.com/studio), or
+- [IntelliJ IDEA](https://www.jetbrains.com/idea/download/#section=linux), or
+- [Visual Studio Code](https://code.visualstudio.com/download)
+
+These IDEs integrate well with Flutter. You will need an installation of the Dart and Flutter plugins, regardless of the IDE you decide to use.
+
+Next download and install Flutter [SDK](https://flutter.dev/docs/get-started/install) and set path in your '.bashrc' file and source it.
 
 ## Project Setup
 
 - Clone project.
+
+- In this project you will use three main dependencies. Those are 'http', 'flutter_appauth' and 'flutter_secure_storage'. Refer [official documentation](https://auth0.com/blog/get-started-with-flutter-authentication/#Install-Dependencies) for more information on these dependencies.
 
 - Install dependencies by clicking "Pub get" in your IDE or run the following command in the project root:
 
@@ -41,9 +63,12 @@ const String AUTH_REDIRECT_URI = 'com.auth0.flutterdemo://login-callback';
 // Auth token issuer domain
 const String AUTH_ISSUER = 'https://$AUTH_DOMAIN';
 
+// Your tenant domain
+const String TENANT_DOMAIN = 'vlgunarathne';
+
 // Full API context path (apart from URL param attached)
 const String API_CONTEXT_PATH =
-    'https://gateway.api.cloud.wso2.com/t/vlgunarathne/demo/v1.0/capital/';
+    'https://$AUTH_DOMAIN/t/$TENANT_DOMAIN/demo/v1.0/capital/';
 
 ```
 
@@ -58,6 +83,9 @@ To run the application you have two options. Either to run in your mobile applic
 ```bash
 flutter run -d all
 ```
-## Login and Invoke API
+## Login, Invoke API and Logout
 
-After running the application, UI will be popped out with a button to 'Login to WSO2 Cloud'. Once you click it, you will be navigated to WSO2 authorization login page. There you need to enter username as 'youruser@email.com@tenant' and give your password. Then approve access to your user profile information. When it's successful, you will be directed to Home page. There you can enter a capital of a country and click 'Search'. You will see results in the UI. If user needs to sign out, click 'power button' in the top bar right side corner. 
+After running the application, UI will be popped out with a button to 'Login to WSO2 Cloud'. Once you click it, you will be navigated to WSO2 authorization login page. There you need to enter username as 'youruser@email.com@tenant' and give your password. Then approve access to your user profile information. When it's successful, you will be directed to Home page. There you can enter a capital of a country and click 'Search'. You will see results in the UI. 
+
+If user needs to sign out, click 'power button' in the top bar right side corner. 
+
