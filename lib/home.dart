@@ -1,10 +1,27 @@
+/*
+ * Copyright [2020] Erandi Ganepola All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutterdemo/utils/auth.dart';
-import 'package:flutterdemo/utils/constants.dart';
 import 'package:http/http.dart' as http;
+
+import 'utils/auth.dart';
+import 'utils/constants.dart';
 
 /// -----------------------------------
 ///           Home Widget
@@ -36,17 +53,12 @@ class _HomeState extends State<Home> {
               itemCount: countries.length,
               itemBuilder: (context, index) {
                 return CountryWidget(country: countries[index]);
-                // return ListTile(
-                // title: CountryWidget(country: countries[index]),
-                // title: Text(countries[index].name),
-                // );
               }));
     } else if (errorMessage != null) {
       contentElement = Text('Unable to fetch results: $errorMessage');
     } else {
       contentElement = const Expanded(
-          child: Icon(Icons.search, size: 150, color: Colors.grey)
-      );
+          child: Icon(Icons.search, size: 150, color: Colors.grey));
     }
 
     return Form(
