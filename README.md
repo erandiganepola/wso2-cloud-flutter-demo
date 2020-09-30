@@ -1,4 +1,4 @@
-# Get Started with Flutter Authentication
+# Securely consuming WSO2 API Cloud APIs with Flutter
 
 [Flutter](https://flutter.dev/) is Google's cross-platform UI toolkit created to help developers build expressive and beautiful mobile applications. [Dart](https://dart.dev) is a client-optimized Google's programming language for apps on multiple platforms. It is used to build mobile, desktop, server, and web applications. 
 
