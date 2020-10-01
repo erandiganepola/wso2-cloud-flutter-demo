@@ -16,9 +16,7 @@
 
 import 'package:flutter/material.dart';
 
-/// -----------------------------------
-///            Login Widget
-/// -----------------------------------
+/// Login Widget
 
 class Login extends StatelessWidget {
   final Future<void> Function() loginAction;
@@ -35,6 +33,7 @@ class Login extends StatelessWidget {
           color: Colors.orange,
           icon: Icon(Icons.account_circle),
           label: Text('Login to Cloud'),
+          // When user clicks login button, login action is being called.
           onPressed: () async {
             await loginAction();
           },

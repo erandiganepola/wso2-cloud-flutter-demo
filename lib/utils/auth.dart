@@ -23,6 +23,8 @@ import 'constants.dart';
 final FlutterAppAuth flutterAppAuth = FlutterAppAuth();
 const FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
+/// Invoke authorization code grant type with PKCE flow
+/// for authorization and token generation
 Future<String> login(
     String authDomain, String clientId, String redirectUri) async {
   try {
@@ -31,9 +33,9 @@ Future<String> login(
         AuthorizationServiceConfiguration('https://$authDomain/authorize',
             'https://$authDomain/token?tenantDomain=$TENANT_DOMAIN');
 
-    // Call appAuth's authorize method to popup web browser with KM '/authorize'
-    // KM will redirect the web browser to login page
-    // Once logged in, KM redirects back to redirect URL with auth code
+    // Call appAuth's authorize method to popup web browser with Keymanager (KM)
+    // '/authorize'. KM will redirect the web browser to login page
+    // Once logged in, KM redirects back to redirect URL with auth code.
     // AppAuth internally generates code verifier and code challenge
     final AuthorizationResponse authorizationResponse =
         await flutterAppAuth.authorize(
@@ -54,6 +56,7 @@ Future<String> login(
 
     debugPrint('Token request successful:${tokenResponse.accessToken}');
 
+    // Add tokens to secure storage.
     await secureStorage.write(
         key: 'refresh_token', value: tokenResponse.refreshToken);
     await secureStorage.write(
@@ -68,6 +71,7 @@ Future<String> login(
   }
 }
 
+/// Get a new access token from 'refresh token grant type'
 Future<String> refreshAccessToken(
     {String clientId, String redirectUri, String issuer, String domain}) async {
   final String storedRefreshToken =
@@ -75,20 +79,23 @@ Future<String> refreshAccessToken(
 
   final AuthorizationServiceConfiguration serviceConfiguration =
       AuthorizationServiceConfiguration('https://$domain/authorize',
-          'https://$domain/token?tenantDomain=vlgunarathne');
+          'https://$domain/token?tenantDomain=$TENANT_DOMAIN');
 
+  // Sends token request to obtain new access token from 'refresh token grant'
   final TokenResponse response = await flutterAppAuth.token(TokenRequest(
       clientId, redirectUri,
       issuer: issuer,
       refreshToken: storedRefreshToken,
       serviceConfiguration: serviceConfiguration));
 
+  // Add new tokens to secure storage.
   await secureStorage.write(key: 'refresh_token', value: response.refreshToken);
   await secureStorage.write(key: 'access_token', value: response.accessToken);
 
   return response.accessToken;
 }
 
+/// Function to get access token
 Future<String> getAccessToken() async {
   return secureStorage.read(key: 'access_token');
 }

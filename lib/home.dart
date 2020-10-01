@@ -23,10 +23,7 @@ import 'package:http/http.dart' as http;
 import 'utils/auth.dart';
 import 'utils/constants.dart';
 
-/// -----------------------------------
-///           Home Widget
-/// -----------------------------------
-
+/// Home widget
 class Home extends StatefulWidget {
   const Home({Key key}) : super(key: key);
 
@@ -34,6 +31,7 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
+/// Class to handle home page's state
 class _HomeState extends State<Home> {
   bool isBusy = false;
   List<Country> countries;
@@ -47,6 +45,8 @@ class _HomeState extends State<Home> {
     if (isBusy) {
       contentElement = const CircularProgressIndicator();
     } else if (countries != null && countries.isNotEmpty) {
+      // If countries available for the searched capital,
+      // draw a list view with a set of CountryWidgets
       contentElement = Expanded(
           child: ListView.builder(
               shrinkWrap: true,
@@ -57,6 +57,8 @@ class _HomeState extends State<Home> {
     } else if (errorMessage != null) {
       contentElement = Text('Unable to fetch results: $errorMessage');
     } else {
+      // When the user visits the home page for the first time, background
+      // search icon is visible.
       contentElement = const Expanded(
           child: Icon(Icons.search, size: 150, color: Colors.grey));
     }
@@ -87,6 +89,8 @@ class _HomeState extends State<Home> {
                 IconButton(
                   icon: Icon(Icons.search),
                   onPressed: () {
+                    // When user clicks the search button, invokeApiAction() is
+                    // called to get country search results for a given capital.
                     if (_formKey.currentState.validate()) {
                       invokeApiAction(textController.text);
                     }
@@ -99,6 +103,7 @@ class _HomeState extends State<Home> {
     );
   }
 
+  /// Function to invoke API and get country search results for a given capital.
   Future<void> invokeApiAction(String capital) async {
     setState(() {
       isBusy = true;
@@ -106,11 +111,12 @@ class _HomeState extends State<Home> {
       errorMessage = null;
     });
 
-    // Access token should not be empty by this point
+    //Access token should not be empty by this point since user already loggedin
     final String accessToken = await getAccessToken();
 
+    // Sends a get request to configured API context URL with access token
     final String url = '$API_CONTEXT_PATH$capital';
-    final http.Response response = await http.get(
+    http.Response response = await http.get(
       url,
       headers: <String, String>{
         'Authorization': 'Bearer $accessToken',
@@ -118,10 +124,35 @@ class _HomeState extends State<Home> {
       },
     );
 
+    // If response's status code is 401, access token is expired. Hence call to
+    // refreshAccessToken() function to and get a new access token.
+    if (response.statusCode == 401) {
+      final String accessToken = await refreshAccessToken(
+          clientId: AUTH_CLIENT_ID,
+          redirectUri: AUTH_REDIRECT_URI,
+          issuer: AUTH_ISSUER,
+          domain: AUTH_DOMAIN);
+      debugPrint(
+          'Got response: status: ${response.statusCode} -> ${response.body}');
+
+      // Call API context URL with new access token
+      response = await http.get(
+        url,
+        headers: <String, String>{
+          'Authorization': 'Bearer $accessToken',
+          HttpHeaders.contentTypeHeader: ContentType.json.mimeType
+        },
+      );
+    }
+
+    // If response's status code is 200, map response to Country objects.
     if (response.statusCode == 200) {
       // Decode response body and convert to country objects
+      // We receive list of maps from response parsed
       final List parsed =
           json.decode(response.body).cast<Map<String, dynamic>>();
+      // Converts every item in list to a country object.
+      // Then get list of country objects
       final List<Country> countryList =
           parsed.map<Country>((jsonObj) => Country.fromJson(jsonObj)).toList();
 
@@ -142,6 +173,7 @@ class _HomeState extends State<Home> {
   }
 }
 
+/// Class to set and get Country objects
 class Country {
   final String name;
   final String capital;
@@ -159,6 +191,7 @@ class Country {
   }
 }
 
+/// Widget to draw country objects
 class CountryWidget extends StatelessWidget {
   final Country country;
 

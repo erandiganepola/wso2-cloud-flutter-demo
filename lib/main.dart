@@ -29,10 +29,7 @@ import 'utils/constants.dart';
 final FlutterAppAuth appAuth = FlutterAppAuth();
 const FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
-/// -----------------------------------
-///                 App
-/// -----------------------------------
-
+/// Main function to run app
 void main() => runApp(const Wso2CloudFlutterDemo());
 
 class Wso2CloudFlutterDemo extends StatefulWidget {
@@ -42,22 +39,21 @@ class Wso2CloudFlutterDemo extends StatefulWidget {
   _Wso2CloudFlutterDemoState createState() => _Wso2CloudFlutterDemoState();
 }
 
-/// -----------------------------------
-///              App State
-/// -----------------------------------
-
+/// Class to handle app state
 class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
   bool isBusy = false;
   bool isLoggedIn = false;
   String errorMessage;
   String name;
 
+  /// Initialize app state
   @override
   void initState() {
     initAction();
     super.initState();
   }
 
+  /// Set user logged in or not. Refresh access token if user has refresh token.
   Future<void> initAction() async {
     final String storedRefreshToken =
         await secureStorage.read(key: 'refresh_token');
@@ -79,7 +75,9 @@ class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
         isLoggedIn = true;
       });
     } on Exception catch (e, s) {
-      debugPrint('error on refresh token: $e - stack: $s');
+      debugPrint('Error getting refresh token: $e - stack: $s');
+      // If error occurs when refreshing access token during app initialization,
+      // put the user to logged out state
       await logoutAction();
     }
   }
@@ -90,34 +88,25 @@ class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
     if (isBusy) {
       content = const CircularProgressIndicator();
     } else if (isLoggedIn) {
+      // If user logged in, navigate user to home page
       content = const Home();
     } else {
+      // If user in logged out state, navigate user to login page
       content = Login(loginAction, errorMessage);
     }
 
+    // Return material app with scaffold
     return MaterialApp(
       title: 'WSO2 Cloud Flutter Demo',
       theme: ThemeData(
-        // This is the theme of the application.
         primarySwatch: Colors.orange,
-        // This makes the visual density adapt to the platform that you run
-        // the app on. For desktop platforms, the controls will be smaller and
-        // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: Scaffold(
         appBar: AppBar(
           title: const Text('WSO2 Cloud Flutter Demo'),
-          actions: isLoggedIn
-              ? <Widget>[
-                  IconButton(
-                    icon: const Icon(Icons.power_settings_new),
-                    onPressed: () {
-                      logoutAction();
-                    },
-                  ),
-                ]
-              : <Widget>[],
+          actions:
+              isLoggedIn ? <Widget>[LogoutButton(logoutAction)] : <Widget>[],
         ),
         body: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -128,6 +117,7 @@ class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
     );
   }
 
+  /// Parses retrieved ID token and returns the resulting Json object.
   Map<String, Object> parseIdToken(String idToken) {
     final List<String> parts = idToken.split('.');
     assert(parts.length == 3);
@@ -136,6 +126,7 @@ class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
         utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
   }
 
+  /// Initializes user login and get the access token.
   Future<void> loginAction() async {
     setState(() {
       isBusy = true;
@@ -159,11 +150,53 @@ class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
     }
   }
 
+  /// Logs out user and deletes refresh token from secure storage.
   Future<void> logoutAction() async {
     await secureStorage.delete(key: 'refresh_token');
     setState(() {
       isLoggedIn = false;
       isBusy = false;
     });
+  }
+}
+
+/// Class to render logout button and logout confirmation dialog
+class LogoutButton extends StatelessWidget {
+  final Future<void> Function() logoutAction;
+
+  const LogoutButton(this.logoutAction, {Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.power_settings_new),
+      onPressed: () {
+        // show the dialog
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Logout"),
+              content: const Text('Do you want to logout?'),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("No"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                FlatButton(
+                  child: Text("Yes"),
+                  onPressed: () async {
+                    await logoutAction();
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 }

@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-/// -----------------------------------
-///          Global Constants
-/// -----------------------------------
+/// Global Constants
 
 // WSO2 API Cloud URL domain
 const String AUTH_DOMAIN = 'gateway.api.cloud.wso2.com';
