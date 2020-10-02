@@ -16,8 +16,7 @@
 
 import 'package:flutter/material.dart';
 
-/// Login Widget
-
+/// Login Widget -> Shows the login button and handles its click event.
 class Login extends StatelessWidget {
   final Future<void> Function() loginAction;
   final String loginError;

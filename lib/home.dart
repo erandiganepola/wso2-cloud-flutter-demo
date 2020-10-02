@@ -23,7 +23,8 @@ import 'package:http/http.dart' as http;
 import 'utils/auth.dart';
 import 'utils/constants.dart';
 
-/// Home widget
+/// Home widget -> This widget contains and handles the country search by
+/// capital
 class Home extends StatefulWidget {
   const Home({Key key}) : super(key: key);
 
@@ -31,7 +32,7 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-/// Class to handle home page's state
+/// Class to represent home page's state
 class _HomeState extends State<Home> {
   bool isBusy = false;
   List<Country> countries;
@@ -55,10 +56,11 @@ class _HomeState extends State<Home> {
                 return CountryWidget(country: countries[index]);
               }));
     } else if (errorMessage != null) {
+      // Show the response error message if any.
       contentElement = Text('Unable to fetch results: $errorMessage');
     } else {
       // When the user visits the home page for the first time, background
-      // search icon is visible.
+      // search image is visible.
       contentElement = const Expanded(
           child: Icon(Icons.search, size: 150, color: Colors.grey));
     }
@@ -125,7 +127,7 @@ class _HomeState extends State<Home> {
     );
 
     // If response's status code is 401, access token is expired. Hence call to
-    // refreshAccessToken() function to and get a new access token.
+    // refreshAccessToken() function to get a new access token.
     if (response.statusCode == 401) {
       final String accessToken = await refreshAccessToken(
           clientId: AUTH_CLIENT_ID,
@@ -147,12 +149,12 @@ class _HomeState extends State<Home> {
 
     // If response's status code is 200, map response to Country objects.
     if (response.statusCode == 200) {
-      // Decode response body and convert to country objects
-      // We receive list of maps from response parsed
+      // Decode response body and convert to country objects.
+      // We receive list of maps from response parsed.
       final List parsed =
           json.decode(response.body).cast<Map<String, dynamic>>();
       // Converts every item in list to a country object.
-      // Then get list of country objects
+      // Then get list of country objects.
       final List<Country> countryList =
           parsed.map<Country>((jsonObj) => Country.fromJson(jsonObj)).toList();
 
@@ -173,7 +175,7 @@ class _HomeState extends State<Home> {
   }
 }
 
-/// Class to set and get Country objects
+/// Class to keep a Country's attributes
 class Country {
   final String name;
   final String capital;
@@ -191,7 +193,7 @@ class Country {
   }
 }
 
-/// Widget to draw country objects
+/// Widget to draw a country object
 class CountryWidget extends StatelessWidget {
   final Country country;
 

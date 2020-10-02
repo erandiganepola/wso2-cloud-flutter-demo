@@ -32,6 +32,7 @@ const FlutterSecureStorage secureStorage = FlutterSecureStorage();
 /// Main function to run app
 void main() => runApp(const Wso2CloudFlutterDemo());
 
+/// Main widget of the app
 class Wso2CloudFlutterDemo extends StatefulWidget {
   const Wso2CloudFlutterDemo({Key key}) : super(key: key);
 
@@ -39,7 +40,7 @@ class Wso2CloudFlutterDemo extends StatefulWidget {
   _Wso2CloudFlutterDemoState createState() => _Wso2CloudFlutterDemoState();
 }
 
-/// Class to handle app state
+/// Class to represent main app state
 class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
   bool isBusy = false;
   bool isLoggedIn = false;
@@ -53,7 +54,8 @@ class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
     super.initState();
   }
 
-  /// Set user logged in or not. Refresh access token if user has refresh token.
+  /// User loggedIn false by default. If user has a refresh token, get a new
+  /// access token when initializing app and set loggedIn to true.
   Future<void> initAction() async {
     final String storedRefreshToken =
         await secureStorage.read(key: 'refresh_token');
@@ -77,15 +79,17 @@ class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
     } on Exception catch (e, s) {
       debugPrint('Error getting refresh token: $e - stack: $s');
       // If error occurs when refreshing access token during app initialization,
-      // put the user to logged out state
+      // put the user to logged out state.
       await logoutAction();
     }
   }
 
+  /// Main widget build
   @override
   Widget build(BuildContext context) {
     Widget content;
     if (isBusy) {
+      // If busy, show a circular progress bar
       content = const CircularProgressIndicator();
     } else if (isLoggedIn) {
       // If user logged in, navigate user to home page
@@ -117,7 +121,7 @@ class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
     );
   }
 
-  /// Parses retrieved ID token and returns the resulting Json object.
+  /// Parse retrieved ID token and return the resulting Json object.
   Map<String, Object> parseIdToken(String idToken) {
     final List<String> parts = idToken.split('.');
     assert(parts.length == 3);
@@ -126,13 +130,15 @@ class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
         utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
   }
 
-  /// Initializes user login and get the access token.
+  /// Initialize user login and get the access token.
   Future<void> loginAction() async {
     setState(() {
       isBusy = true;
       errorMessage = '';
     });
 
+    // Call to get access token. If successful set isLoggedIn to true,
+    // false otherwise.
     final String accessToken =
         await login(AUTH_DOMAIN, AUTH_CLIENT_ID, AUTH_REDIRECT_URI);
 
@@ -150,7 +156,7 @@ class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
     }
   }
 
-  /// Logs out user and deletes refresh token from secure storage.
+  /// Log out user and delete refresh token from secure storage.
   Future<void> logoutAction() async {
     await secureStorage.delete(key: 'refresh_token');
     setState(() {
@@ -187,6 +193,7 @@ class LogoutButton extends StatelessWidget {
                 ),
                 FlatButton(
                   child: Text("Yes"),
+                  // If yes, logout use from app
                   onPressed: () async {
                     await logoutAction();
                     Navigator.pop(context);

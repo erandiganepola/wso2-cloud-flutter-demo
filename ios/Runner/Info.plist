@@ -48,7 +48,7 @@
          <string>Editor</string>
          <key>CFBundleURLSchemes</key>
          <array>
-            <string>com.auth0.flutterdemo</string>
+            <string>org.wso2.cloud.flutterdemo</string>
          </array>
       </dict>
    </array>

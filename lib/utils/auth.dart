@@ -23,8 +23,8 @@ import 'constants.dart';
 final FlutterAppAuth flutterAppAuth = FlutterAppAuth();
 const FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
-/// Invoke authorization code grant type with PKCE flow
-/// for authorization and token generation
+/// Uses authorization code grant with PKCE flow to obtain an access token.
+/// Returns the obtained access token
 Future<String> login(
     String authDomain, String clientId, String redirectUri) async {
   try {
@@ -71,7 +71,8 @@ Future<String> login(
   }
 }
 
-/// Get a new access token from 'refresh token grant type'
+/// Get a new access token from the refresh token using
+/// 'refresh token grant type'
 Future<String> refreshAccessToken(
     {String clientId, String redirectUri, String issuer, String domain}) async {
   final String storedRefreshToken =
@@ -81,7 +82,7 @@ Future<String> refreshAccessToken(
       AuthorizationServiceConfiguration('https://$domain/authorize',
           'https://$domain/token?tenantDomain=$TENANT_DOMAIN');
 
-  // Sends token request to obtain new access token from 'refresh token grant'
+  // Send token request to obtain new access token from 'refresh token grant'
   final TokenResponse response = await flutterAppAuth.token(TokenRequest(
       clientId, redirectUri,
       issuer: issuer,

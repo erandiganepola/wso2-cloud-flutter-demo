@@ -42,7 +42,7 @@ flutter pub get
 ## Prerequisites to setup in Cloud
 - Create an account in WSO2 Cloud if you don't have one and login to [Publisher portal](https://api.cloud.wso2.com/publisher).
 - [Create an API](https://docs.wso2.com/display/APICloud/Create+and+Publish+an+API). When creating your API, add a "GET" method for the resource path "/capital/{capital}" and set the endpoint URL to "https://restcountries.eu/rest/v2". At the end your API should call [REST Countries Capital City endpoint](https://restcountries.eu/#api-endpoints-capital-city). Then publish your API.
-- Visit WSO2 API Store and [create an application](https://docs.wso2.com/display/APICloud/Subscribe+to+and+Invoke+an+API). Enable code grant with a redirect URL (ex: com.auth0.flutterdemo://login-callback) and generate tokens.
+- Visit WSO2 API Store and [create an application](https://docs.wso2.com/display/APICloud/Subscribe+to+and+Invoke+an+API). Enable code grant with a redirect URL (ex: org.wso2.cloud.flutterdemo://login-callback) and generate tokens.
 - Subscribe to previously published API from the newly created applicaion.
 - Signin to [WSO2 Keymanager](https://keymanager.api.cloud.wso2.com/carbon/) by giving username as 'youruser@email.com@tenant' and give yor password. Then enable [Allow "Authentication without client secret" configuration under the OIDC service provider config](https://is.docs.wso2.com/en/latest/learn/configuring-oauth2-openid-connect-single-sign-on/).
 - Set relevant values in cloned project's 'lib/utils/constants.dart' file. Sample is given below:
@@ -58,7 +58,7 @@ const String AUTH_DOMAIN = 'gateway.api.cloud.wso2.com';
 const String AUTH_CLIENT_ID = 'fO0rk7lzuWZKxxxxxxixxxxx';
 
 // Call back URL specified in your application
-const String AUTH_REDIRECT_URI = 'com.auth0.flutterdemo://login-callback';
+const String AUTH_REDIRECT_URI = 'org.wso2.cloud.flutterdemo://login-callback';
 
 // Auth token issuer domain
 const String AUTH_ISSUER = 'https://$AUTH_DOMAIN';

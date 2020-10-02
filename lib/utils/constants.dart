@@ -23,7 +23,7 @@ const String AUTH_DOMAIN = 'gateway.api.cloud.wso2.com';
 const String AUTH_CLIENT_ID = 'fO0rk7lzuWZKRofN13zmZiQc7M8a';
 
 // Call back URL specified in your application
-const String AUTH_REDIRECT_URI = 'com.auth0.flutterdemo://login-callback';
+const String AUTH_REDIRECT_URI = 'org.wso2.cloud.flutterdemo://login-callback';
 
 // Auth token issuer domain
 const String AUTH_ISSUER = 'https://$AUTH_DOMAIN';
