@@ -1,10 +1,24 @@
 # Securely consuming WSO2 API Cloud APIs with Flutter
 
-[Flutter](https://flutter.dev/) is Google's cross-platform UI toolkit created to help developers build expressive and beautiful mobile applications. [Dart](https://dart.dev) is a client-optimized Google's programming language for apps on multiple platforms. It is used to build mobile, desktop, server, and web applications. 
+## Use Case
 
-In this project, you will learn how to build and secure a simple Flutter mobile application from Dart language. This app demonstrates how a consumer can write a mobile app to consume WSO2 API Cloud APIs securely. Mainly about how to implement login, logout and API invokation flows.
+Mobile revolution has ushered in a new era for business since it gives many advantages to business such as adding value to customers, increasing customer engagement and increasing brand recognition, etc. So that, you will be urged to consume APIs via mobile applications. But when it comes to imeplementing mobile applications, there are security, userbility and other concerns you need to address. 
 
-## What You'll Build
+Public clients, such as applications running in a browser or on a mobile device are unable to use registered client secrets. Because they can't keep client-secrets safe. So storing the client-secret in a public client(SPA or mobile app) is not recommended. Therefore, they have to authenticate with the authorization server only using client-id.  But then again authorization code is exposed in the network calls.
+
+Moreover, developing native applications doesn't make sence nowadays. The “write once, run anywhere” approach that comes with cross platform  applications allows developers to utilize a single code on multiple platforms, which greatly reduces costs and shortens the development time , unlike native apps.
+
+## Solution
+
+Mobile applications can be introduced as another sales channel which increases customer engagement and adds more value to business. 
+
+When implementing your mobile application securely, since public clients do not need client-secret, it is recommended to use authorization code grant with PKCE for public-clients. Refer the [spec](https://tools.ietf.org/html/rfc7636) for PKCE for public clients. A proof of possession mechanism has been introduced to mitigate the effects of authorization code interception attacks. So PKCE will make authorization flow more secure. It provides a way to generate a code-verifier that is used when requesting the access token so that an attacker who intercepts the authorization code can’t make use of the stolen authorization-code.
+
+When it comes to building cross platform mobile applications which can be built to run in Android and iOS both, Flutter freamework is in hype and it is well matured by now. [Flutter](https://flutter.dev/) is Google's cross-platform UI toolkit created to help developers build expressive and beautiful mobile applications. [Dart](https://dart.dev) is a client-optimized Google's programming language for apps on multiple platforms. It is used to build mobile, desktop, server, and web applications.
+
+So in this project, you will learn how to build and secure a simple Flutter mobile application from Dart language. This app demonstrates how a consumer can write a mobile app to consume WSO2 API Cloud APIs securely. Mainly about how to implement login, logout and API invokation flows.
+
+## Implementation
 
 You will build a mobile app with following UIs:
 
@@ -17,7 +31,7 @@ You will build a mobile app with following UIs:
 | <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/home.jpeg" alt="Your image title" height="450" width="250"/>
 | <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/search1.jpeg" alt="Your image title" height="450" width="250"/> | <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/search2.jpeg" alt="Your image title" height="450" width="250"/> 
 
-## Setup your Development Environment
+### Setup your Development Environment
 Development Environment, one of:
 - [Android Studio](https://developer.android.com/studio), or
 - [IntelliJ IDEA](https://www.jetbrains.com/idea/download/#section=linux), or
@@ -27,7 +41,7 @@ These IDEs integrate well with Flutter. You will need an installation of the Dar
 
 Next download and install Flutter [SDK](https://flutter.dev/docs/get-started/install) and set path in your '.bashrc' file and source it.
 
-## Project Setup
+### Project Setup
 
 - Clone project.
 
@@ -39,7 +53,7 @@ Next download and install Flutter [SDK](https://flutter.dev/docs/get-started/ins
 flutter pub get
 ```
 
-## Prerequisites to setup in Cloud
+### Prerequisites to setup in Cloud
 - Create an account in WSO2 Cloud if you don't have one and login to [Publisher portal](https://api.cloud.wso2.com/publisher).
 - [Create an API](https://docs.wso2.com/display/APICloud/Create+and+Publish+an+API). When creating your API, add a "GET" method for the resource path "/capital/{capital}" and set the endpoint URL to "https://restcountries.eu/rest/v2". At the end your API should call [REST Countries Capital City endpoint](https://restcountries.eu/#api-endpoints-capital-city). Then publish your API.
 - Visit WSO2 API Store and [create an application](https://docs.wso2.com/display/APICloud/Subscribe+to+and+Invoke+an+API). Enable code grant with a redirect URL (ex: org.wso2.cloud.flutterdemo://login-callback) and generate tokens.
@@ -72,7 +86,7 @@ const String API_CONTEXT_PATH =
 
 ```
 
-## Run the Application
+### Run the Application
 
 To run the application you have two options. Either to run in your mobile application or to run in a simulator.
 
@@ -83,9 +97,18 @@ To run the application you have two options. Either to run in your mobile applic
 ```bash
 flutter run -d all
 ```
-## Login, Invoke API and Logout
+### Login, Invoke API and Logout
 
 After running the application, UI will be popped out with a button to 'Login to WSO2 Cloud'. Once you click it, you will be navigated to WSO2 authorization login page. There you need to enter username as 'youruser@email.com@tenant' and give your password. Then approve access to your user profile information. When it's successful, you will be directed to Home page. There you can enter a capital of a country and click 'Search'. You will see results in the UI. 
 
 If user needs to sign out, click 'power button' in the top bar right side corner. 
+
+## What's Next
+
+This sample mobile app can be improved further to cater your business requirements. Here we have few more suggestions to start with:
+
+ - Handle exceptions, error codes and error messages in a more informative way.
+ - Implement exponential backoff strategy 
+ 
+ 
 
