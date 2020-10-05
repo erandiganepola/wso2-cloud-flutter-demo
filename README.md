@@ -1,22 +1,36 @@
 # Securely consuming WSO2 API Cloud APIs with Flutter
 
-## Use Case
+## Introduction
 
-Mobile revolution has ushered in a new era for business since it gives many advantages to business such as adding value to customers, increasing customer engagement and increasing brand recognition, etc. So that, you will be urged to consume APIs via mobile applications. But when it comes to imeplementing mobile applications, there are security, userbility and other concerns you need to address. 
+With mobile revolution, businesses tend to provide their products and services via mobile applications apart from the conventional web applications. Mobile applications provide faster access, portability, frequent customer engagement and many more as advantages.
 
-Public clients, such as applications running in a browser or on a mobile device are unable to use registered client secrets. Because they can't keep client-secrets safe. So storing the client-secret in a public client(SPA or mobile app) is not recommended. Therefore, they have to authenticate with the authorization server only using client-id.  But then again authorization code is exposed in the network calls.
+When developing mobile applications, technology stack, security and usability are the main concerns. The “write once, run anywhere” approach that comes with cross platform  applications allows developers to utilize a single code on multiple platforms, which greatly reduces costs and shortens the development time , unlike native apps.
 
-Moreover, developing native applications doesn't make sence nowadays. The “write once, run anywhere” approach that comes with cross platform  applications allows developers to utilize a single code on multiple platforms, which greatly reduces costs and shortens the development time , unlike native apps.
+When invoking APIs securely, shipping credentials/access tokens (ex: client-secrets) with the application is not recommended because they can be easily exposed. The proposed approach is using [authorization code grant type](https://is.docs.wso2.com/en/latest/learn/authorization-code-grant/) which authenticates with an authorization server using a combination of client-id and authorization code. But then again authorization code can be intercepted. Therefore the recommended way for mobile applications is [authorization code grant with proof key for code exchange](https://is.docs.wso2.com/en/5.9.0/learn/try-authorization-code-grant/). Refer the [spec](https://tools.ietf.org/html/rfc7636) for PKCE for public clients.
+
+In this project, we have written a [Flutter](https://flutter.dev/) mobile application which securely invokes an API through WSO2 API Cloud using authorization code grant type with PKCE .
+
+## Problem
+
+We need to write a novel cross platform (iOS/Android) mobile application which uses single sign on (SSO) and securely invokes an existing API to reach a wider audience while providing them ease of access. Implementing recommended security standards like authorization code with PKCE ourselves is time consuming. 
 
 ## Solution
 
-Mobile applications can be introduced as another sales channel which increases customer engagement and adds more value to business. 
+### Choosing recommended security standards
+When developing SSO mobile applications securely, authorization code grant with PKCE flow is recommended to mitigate the effects of authorization code interception attacks. Therefore PKCE will make authorization flow more secure by providing a way to generate a code-verifier and code challenge that are used when requesting the access token so that an attacker who intercepts the authorization code can’t make use of the stolen authorization-code.
 
-When implementing your mobile application securely, since public clients do not need client-secret, it is recommended to use authorization code grant with PKCE for public-clients. Refer the [spec](https://tools.ietf.org/html/rfc7636) for PKCE for public clients. A proof of possession mechanism has been introduced to mitigate the effects of authorization code interception attacks. So PKCE will make authorization flow more secure. It provides a way to generate a code-verifier that is used when requesting the access token so that an attacker who intercepts the authorization code can’t make use of the stolen authorization-code.
+### Choosing a cross platform mobile application framework
+[Flutter](https://flutter.dev/) and [React Native](https://reactnative.dev) frameworks are the leading contenders while React Native is more matured and Flutter is better in performance with more support for native components. Experts have predicted that Flutter will be the future of mobile app development. Furthermore Flutter has an 'AppAuth' library named ['flutter_appauth'](https://pub.dev/packages/flutter_appauth) which handles the 'auth code with PKCE' flow. Considering those reasons and after comparing both frameworks, we decided to use Flutter to develop this mobile application.
 
-When it comes to building cross platform mobile applications which can be built to run in Android and iOS both, Flutter freamework is in hype and it is well matured by now. [Flutter](https://flutter.dev/) is Google's cross-platform UI toolkit created to help developers build expressive and beautiful mobile applications. [Dart](https://dart.dev) is a client-optimized Google's programming language for apps on multiple platforms. It is used to build mobile, desktop, server, and web applications.
+Flutter framework uses Google's [Dart](https://dart.dev) language. It is used to develop for multiple platforms such as mobile, desktop, server, and web applications.
 
-So in this project, you will learn how to build and secure a simple Flutter mobile application from Dart language. This app demonstrates how a consumer can write a mobile app to consume WSO2 API Cloud APIs securely. Mainly about how to implement login, logout and API invokation flows.
+### Implementing security and more
+We earlier mentioned that implementing security standards by ourselves is time consuming. Additionally monitoring, throttling and may be API monetization are required to be handled. In summary we need a matured API Management solution. 
+
+When considering the above factors, [WSO2 API Cloud](https://wso2.com/api-management/cloud/) is the most suitable solution. Refer this article for more details - [A Guide to Selecting the Right API Management SaaS](https://wso2.com/blogs/thesource/a-guide-to-selecting-the-right-api-management-saas/)
+
+
+So in this project we will develop an app which demonstrates how a consumer can write a mobile app to consume APIs securely with WSO2 API Cloud.
 
 ## Implementation
 
@@ -60,8 +74,8 @@ flutter pub get
 - Create an account in WSO2 Cloud if you don't have one and login to [Publisher portal](https://api.cloud.wso2.com/publisher).
 - [Create an API](https://docs.wso2.com/display/APICloud/Create+and+Publish+an+API). When creating your API, add a "GET" method for the resource path "/capital/{capital}" and set the endpoint URL to "https://restcountries.eu/rest/v2". At the end your API should call [REST Countries Capital City endpoint](https://restcountries.eu/#api-endpoints-capital-city). Then publish your API.
 - Visit WSO2 API Store and [create an application](https://docs.wso2.com/display/APICloud/Subscribe+to+and+Invoke+an+API). Enable code grant with a redirect URL (ex: org.wso2.cloud.flutterdemo://login-callback) and generate tokens.
-- Subscribe to previously published API from the newly created applicaion.
-- Signin to [WSO2 Keymanager](https://keymanager.api.cloud.wso2.com/carbon/) by giving username as 'youruser@email.com@tenant' and give yor password. Then enable [Allow "Authentication without client secret" configuration under the OIDC service provider config](https://is.docs.wso2.com/en/latest/learn/configuring-oauth2-openid-connect-single-sign-on/).
+- Subscribe to previously published API from the newly created application.
+- Signin to [WSO2 Keymanager](https://keymanager.api.cloud.wso2.com/carbon/) by giving username as 'youruser@email.com@tenant' and give your password. Then enable [Allow "Authentication without client secret" configuration under the OIDC service provider config](https://is.docs.wso2.com/en/latest/learn/configuring-oauth2-openid-connect-single-sign-on/).
 - Set relevant values in cloned project's 'lib/utils/constants.dart' file. Sample is given below:
 ```
 /// -----------------------------------
@@ -113,5 +127,3 @@ This sample mobile app can be improved further to cater your business requiremen
  - Handle exceptions, error codes and error messages in a more informative way.
  - Implement exponential backoff strategy 
  
- 
-
