@@ -20,7 +20,7 @@ We need to write a novel cross platform (iOS/Android) mobile application which u
 When developing SSO mobile applications securely, authorization code grant with PKCE flow is recommended to mitigate the effects of authorization code interception attacks. Therefore PKCE will make authorization flow more secure by providing a way to generate a code-verifier and code challenge that are used when requesting the access token so that an attacker who intercepts the authorization code can’t make use of the stolen authorization-code.
 
 - ### Choosing a cross platform mobile application framework
-[Flutter](https://flutter.dev/) and [React Native](https://reactnative.dev) frameworks are the leading contenders while React Native is more matured and Flutter is better in performance with more support for native components. Experts have predicted that Flutter will be the future of mobile app development. Furthermore Flutter has an 'AppAuth' library named ['flutter_appauth'](https://pub.dev/packages/flutter_appauth) which handles the 'auth code with PKCE' flow. Considering those reasons and after comparing both frameworks, we decided to use Flutter to develop this mobile application.
+[Flutter](https://flutter.dev/) and [React Native](https://reactnative.dev) frameworks are the leading contenders while React Native is more matured and Flutter is better in performance with more support for native components. Experts have predicted that Flutter will be the future of mobile application development. Furthermore Flutter has an 'AppAuth' library named ['flutter_appauth'](https://pub.dev/packages/flutter_appauth) which handles the 'authorization code with PKCE' flow. Considering those reasons and after comparing both frameworks, we decided to use Flutter to develop this mobile application.
 
 Flutter framework uses Google's [Dart](https://dart.dev) language. It is used to develop for multiple platforms such as mobile, desktop, server, and web applications.
 
@@ -30,9 +30,22 @@ We earlier mentioned that implementing security standards by ourselves is time c
 When considering the above factors, [WSO2 API Cloud](https://wso2.com/api-management/cloud/) is the most suitable solution. Refer this article for more details - [A Guide to Selecting the Right API Management SaaS](https://wso2.com/blogs/thesource/a-guide-to-selecting-the-right-api-management-saas/)
 
 
-So in this project we will develop an app which demonstrates how a consumer can write a mobile app to consume APIs securely with WSO2 API Cloud.
+So in this project we will develop an application which demonstrates how a consumer can write a mobile application to consume APIs securely with WSO2 API Cloud.
 
 ## Implementation
+
+- ### Login and token generation flow
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramLogin_%20tokenGeneration.jpg" alt="Your image title" height="600" width="1000"/>
+
+- ### API invocation with a valid access token
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramApiInvocation200.jpg" alt="Your image title" height="300" width="900"/>
+
+- ### API invocation with an invalid access token (refreshing access token)
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramApiInvocation401.jpg" alt="Your image title" height="400" width="1000"/>
+
+- ### Logout flow
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramLogout.jpg" alt="Your image title" height="200" width="500"/>
+
 
 You will build a mobile app with following UIs:
 
@@ -48,7 +61,7 @@ You will build a mobile app with following UIs:
 - Logout UI
 <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/logoutConfrmation.jpeg" alt="Your image title" height="450" width="250"/>
 
-### Setup your Development Environment
+## Setup your Environment
 Development Environment, one of:
 - [Android Studio](https://developer.android.com/studio), or
 - [IntelliJ IDEA](https://www.jetbrains.com/idea/download/#section=linux), or
@@ -58,25 +71,25 @@ These IDEs integrate well with Flutter. You will need an installation of the Dar
 
 Next download and install Flutter [SDK](https://flutter.dev/docs/get-started/install) and set path in your '.bashrc' file and source it.
 
-### Project Setup
+- ### Project Setup
 
-- Clone project.
+  - Clone project.
 
-- In this project you will use three main dependencies. Those are 'http', 'flutter_appauth' and 'flutter_secure_storage'. Refer [official documentation](https://auth0.com/blog/get-started-with-flutter-authentication/#Install-Dependencies) for more information on these dependencies.
+  - In this project you will use three main dependencies. Those are 'http', 'flutter_appauth' and 'flutter_secure_storage'. Refer [official documentation](https://auth0.com/blog/get-started-with-flutter-authentication/#Install-Dependencies) for more information on these dependencies.
 
-- Install dependencies by clicking "Pub get" in your IDE or run the following command in the project root:
+  - Install dependencies by clicking "Pub get" in your IDE or run the following command in the project root:
 
 ```bash
 flutter pub get
 ```
 
-### Prerequisites to setup in Cloud
-- Create an account in WSO2 Cloud if you don't have one and login to [Publisher portal](https://api.cloud.wso2.com/publisher).
-- [Create an API](https://docs.wso2.com/display/APICloud/Create+and+Publish+an+API). When creating your API, add a "GET" method for the resource path "/capital/{capital}" and set the endpoint URL to "https://restcountries.eu/rest/v2". At the end your API should call [REST Countries Capital City endpoint](https://restcountries.eu/#api-endpoints-capital-city). Then publish your API.
-- Visit WSO2 API Store and [create an application](https://docs.wso2.com/display/APICloud/Subscribe+to+and+Invoke+an+API). Enable code grant with a redirect URL (ex: org.wso2.cloud.flutterdemo://login-callback) and generate tokens.
-- Subscribe to previously published API from the newly created application.
-- Signin to [WSO2 Keymanager](https://keymanager.api.cloud.wso2.com/carbon/) by giving username as 'youruser@email.com@tenant' and give your password. Then enable [Allow "Authentication without client secret" configuration under the OIDC service provider config](https://is.docs.wso2.com/en/latest/learn/configuring-oauth2-openid-connect-single-sign-on/).
-- Set relevant values in cloned project's 'lib/utils/constants.dart' file. Sample is given below:
+- ### Prerequisites to setup in Cloud
+  - Create an account in WSO2 Cloud if you don't have one and login to [Publisher portal](https://api.cloud.wso2.com/publisher).
+  - [Create an API](https://docs.wso2.com/display/APICloud/Create+and+Publish+an+API). When creating your API, add a "GET" method for the resource path "/capital/{capital}" and set the endpoint URL to "https://restcountries.eu/rest/v2". At the end your API should call [REST Countries Capital City endpoint](https://restcountries.eu/#api-endpoints-capital-city). Then publish your API.
+  - Visit WSO2 API Store and [create an application](https://docs.wso2.com/display/APICloud/Subscribe+to+and+Invoke+an+API). Enable code grant with a redirect URL (ex: org.wso2.cloud.flutterdemo://login-callback) and generate tokens.
+  - Subscribe to previously published API from the newly created application.
+  - Signin to [WSO2 Keymanager](https://keymanager.api.cloud.wso2.com/carbon/) by giving username as 'youruser@email.com@tenant' and give your password. Then enable [Allow "Authentication without client secret" configuration under the OIDC service provider config](https://is.docs.wso2.com/en/latest/learn/configuring-oauth2-openid-connect-single-sign-on/).
+  - Set relevant values in cloned project's 'lib/utils/constants.dart' file. Sample is given below:
 ```
 /// -----------------------------------
 ///          Global Constants
@@ -103,18 +116,18 @@ const String API_CONTEXT_PATH =
 
 ```
 
-### Run the Application
+- ### Run the Application
 
 To run the application you have two options. Either to run in your mobile application or to run in a simulator.
 
- - Option 01 : [Enable developer options and USB Debugging](https://www.howtogeek.com/129728/how-to-access-the-developer-options-menu-and-enable-usb-debugging-on-android-4.2/#:~:text=To%20enable%20Developer%20Options%2C%20open,times%20to%20enable%20Developer%20Options.) in mobile phone’s settings and run the application.
- - Option 02 : Launch either the [iOS simulator](https://flutter.dev/docs/get-started/install/macos#set-up-the-ios-simulator) or [Android emulators](https://flutter.dev/docs/get-started/install/macos#set-up-the-android-emulator), then run the application. 
- - You can run the application from your IDE or using following command:
+  - Option 01 : [Enable developer options and USB Debugging](https://www.howtogeek.com/129728/how-to-access-the-developer-options-menu-and-enable-usb-debugging-on-android-4.2/#:~:text=To%20enable%20Developer%20Options%2C%20open,times%20to%20enable%20Developer%20Options.) in mobile phone’s settings and run the application.
+  - Option 02 : Launch either the [iOS simulator](https://flutter.dev/docs/get-started/install/macos#set-up-the-ios-simulator) or [Android emulators](https://flutter.dev/docs/get-started/install/macos#set-up-the-android-emulator), then run the application. 
+  - You can run the application from your IDE or using following command:
 
 ```bash
 flutter run -d all
 ```
-### Login, Invoke API and Logout
+- ### Login, Invoke API and Logout
 
 After running the application, UI will be popped out with a button to 'Login to WSO2 Cloud'. Once you click it, you will be navigated to WSO2 authorization login page. There you need to enter username as 'youruser@email.com@tenant' and give your password. Then approve access to your user profile information. When it's successful, you will be directed to Home page. There you can enter a capital of a country and click 'Search'. You will see results in the UI. 
 
