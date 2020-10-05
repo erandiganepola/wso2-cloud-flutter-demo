@@ -16,15 +16,15 @@ We need to write a novel cross platform (iOS/Android) mobile application which u
 
 ## Solution
 
-### Choosing recommended security standards
+- ### Choosing recommended security standards
 When developing SSO mobile applications securely, authorization code grant with PKCE flow is recommended to mitigate the effects of authorization code interception attacks. Therefore PKCE will make authorization flow more secure by providing a way to generate a code-verifier and code challenge that are used when requesting the access token so that an attacker who intercepts the authorization code can’t make use of the stolen authorization-code.
 
-### Choosing a cross platform mobile application framework
+- ### Choosing a cross platform mobile application framework
 [Flutter](https://flutter.dev/) and [React Native](https://reactnative.dev) frameworks are the leading contenders while React Native is more matured and Flutter is better in performance with more support for native components. Experts have predicted that Flutter will be the future of mobile app development. Furthermore Flutter has an 'AppAuth' library named ['flutter_appauth'](https://pub.dev/packages/flutter_appauth) which handles the 'auth code with PKCE' flow. Considering those reasons and after comparing both frameworks, we decided to use Flutter to develop this mobile application.
 
 Flutter framework uses Google's [Dart](https://dart.dev) language. It is used to develop for multiple platforms such as mobile, desktop, server, and web applications.
 
-### Implementing security and more
+- ### Implementing security and more
 We earlier mentioned that implementing security standards by ourselves is time consuming. Additionally monitoring, throttling and may be API monetization are required to be handled. In summary we need a matured API Management solution. 
 
 When considering the above factors, [WSO2 API Cloud](https://wso2.com/api-management/cloud/) is the most suitable solution. Refer this article for more details - [A Guide to Selecting the Right API Management SaaS](https://wso2.com/blogs/thesource/a-guide-to-selecting-the-right-api-management-saas/)
