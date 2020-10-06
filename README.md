@@ -1,5 +1,20 @@
 # Securely consuming WSO2 API Cloud APIs with Flutter
 
+### Content
+- [Introduction](https://github.com/erandiganepola/wso2-cloud-flutter-demo#introduction)
+- [Problem](https://github.com/erandiganepola/wso2-cloud-flutter-demo#problem)
+- [Solution](https://github.com/erandiganepola/wso2-cloud-flutter-demo#solution)
+  - [Choosing recommended security standards](https://github.com/erandiganepola/wso2-cloud-flutter-demo#choosing-recommended-security-standards)
+  - [Choosing a cross platform mobile application framework](https://github.com/erandiganepola/wso2-cloud-flutter-demo#choosing-a-cross-platform-mobile-application-framework)
+  - [Implementing security and more](https://github.com/erandiganepola/wso2-cloud-flutter-demo#implementing-security-and-more)
+- [Implementation](https://github.com/erandiganepola/wso2-cloud-flutter-demo#implementation)
+- [Setup your Environment](https://github.com/erandiganepola/wso2-cloud-flutter-demo#setup-your-environment)
+  - [Project Setup](https://github.com/erandiganepola/wso2-cloud-flutter-demo#project-setup)
+  - [Prerequisites to setup in WSO2 Cloud](https://github.com/erandiganepola/wso2-cloud-flutter-demo#prerequisites-to-setup-in-wso2-cloud)
+  - [Run the Application](https://github.com/erandiganepola/wso2-cloud-flutter-demo#run-the-application)
+  - [Login, Invoke API and Logout](https://github.com/erandiganepola/wso2-cloud-flutter-demo#login-invoke-api-and-logout)
+- [What's Next](https://github.com/erandiganepola/wso2-cloud-flutter-demo#whats-next)
+
 ## Introduction
 
 With mobile revolution, businesses tend to provide their products and services via mobile applications apart from the conventional web applications. Mobile applications provide faster access, portability, frequent customer engagement and many more as advantages.
@@ -83,7 +98,7 @@ Next download and install Flutter [SDK](https://flutter.dev/docs/get-started/ins
 flutter pub get
 ```
 
-- ### Prerequisites to setup in Cloud
+- ### Prerequisites to setup in WSO2 Cloud
   - Create an account in WSO2 Cloud if you don't have one and login to [Publisher portal](https://api.cloud.wso2.com/publisher).
   - [Create an API](https://docs.wso2.com/display/APICloud/Create+and+Publish+an+API). When creating your API, add a "GET" method for the resource path "/capital/{capital}" and set the endpoint URL to "https://restcountries.eu/rest/v2". At the end your API should call [REST Countries Capital City endpoint](https://restcountries.eu/#api-endpoints-capital-city). Then publish your API.
   - Visit WSO2 API Store and [create an application](https://docs.wso2.com/display/APICloud/Subscribe+to+and+Invoke+an+API). Enable code grant with a redirect URL (ex: org.wso2.cloud.flutterdemo://login-callback) and generate tokens.
