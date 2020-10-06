@@ -21,18 +21,18 @@ With mobile revolution, businesses tend to provide their products and services v
 
 When developing mobile applications, technology stack, security and usability are the main concerns. The “write once, run anywhere” approach that comes with cross platform  applications allows developers to utilize a single code on multiple platforms, which greatly reduces costs and shortens the development time , unlike native apps.
 
-When invoking APIs securely, shipping credentials/access tokens (ex: client-secrets) with the application is not recommended because they can be easily exposed. The proposed approach is using [authorization code grant type](https://is.docs.wso2.com/en/latest/learn/authorization-code-grant/) which authenticates with an authorization server using a combination of client-id and authorization code. But then again authorization code can be intercepted. Therefore the recommended way for mobile applications is [authorization code grant with proof key for code exchange](https://is.docs.wso2.com/en/5.9.0/learn/try-authorization-code-grant/). Refer the [spec](https://tools.ietf.org/html/rfc7636) for PKCE for public clients.
+When invoking APIs securely, shipping credentials/access tokens (ex: client-secrets) with the application is not recommended because they can be easily exposed. The proposed approach is using [authorization code grant type](https://is.docs.wso2.com/en/latest/learn/authorization-code-grant/) which authenticates with an authorization server using a combination of client-id and authorization code. But then again authorization code can be intercepted. Therefore the recommended way for mobile applications is ['authorization code grant with proof key for code exchange'](https://is.docs.wso2.com/en/5.9.0/learn/try-authorization-code-grant/). Refer the [RFC-7636 spec](https://tools.ietf.org/html/rfc7636) on Proof Key for Code Exchange (PKCE) by OAuth Public Clients for more details.
 
-In this project, we have written a [Flutter](https://flutter.dev/) mobile application which securely invokes an API through WSO2 API Cloud using authorization code grant type with PKCE .
+In this project, we have written a [Flutter](https://flutter.dev/) mobile application which securely invokes an API through [WSO2 API Cloud](https://wso2.com/api-management/cloud/) using authorization code grant with PKCE .
 
 ## Problem
 
-We need to write a novel cross platform (iOS/Android) mobile application which uses single sign on (SSO) and securely invokes an existing API to reach a wider audience while providing them ease of access. Implementing recommended security standards like authorization code with PKCE ourselves is time consuming. 
+We need to write a novel cross platform (iOS/Android) mobile application which uses single sign on (SSO) and securely invokes an existing API to reach a wider audience while providing them ease of access. Implementing recommended security standards like authorization code grant with PKCE ourselves is time consuming. 
 
 ## Solution
 
 - ### Choosing recommended security standards
-When developing SSO mobile applications securely, authorization code grant with PKCE flow is recommended to mitigate the effects of authorization code interception attacks. Therefore PKCE will make authorization flow more secure by providing a way to generate a code-verifier and code challenge that are used when requesting the access token so that an attacker who intercepts the authorization code can’t make use of the stolen authorization-code.
+As discussed in the introduction, when developing SSO mobile applications securely, authorization code grant with PKCE flow is recommended to mitigate the effects of authorization code interception attacks. Therefore PKCE will make authorization flow more secure by providing a way to generate a code-verifier and code challenge that are used when requesting the access token so that an attacker who intercepts the authorization code can’t make use of the stolen authorization-code.
 
 - ### Choosing a cross platform mobile application framework
 [Flutter](https://flutter.dev/) and [React Native](https://reactnative.dev) frameworks are the leading contenders while React Native is more matured and Flutter is better in performance with more support for native components. Experts have predicted that Flutter will be the future of mobile application development. Furthermore Flutter has an 'AppAuth' library named ['flutter_appauth'](https://pub.dev/packages/flutter_appauth) which handles the 'authorization code with PKCE' flow. Considering those reasons and after comparing both frameworks, we decided to use Flutter to develop this mobile application.
@@ -66,40 +66,121 @@ When user opens this mobile application, user is navigated to the 'Login' page a
 
 <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/login.jpeg" alt="Your image title" height="450" width="250"/>
 
-When user clicks 'Login to Cloud' button, from code level ['login()' function](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/utils/auth.dart#L28) gets called. Inside that function, it calls appAuth's authorize method to popup web browser with WSO2 Cloud's Key manager '/authorize'. In this call AppAuth internally generates code challenge and sends with the request. 
+When user clicks 'Login to Cloud' button, from code level ['login()' function](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/utils/auth.dart#L28) gets called. Inside that function, it calls appAuth's authorize() method to popup web browser with WSO2 Cloud's Key manager '/authorize'. In this call AppAuth internally generates **code challenge** and sends with the request since we use 'authorization code grant with PKCE' flow. Apart from that in the request we send client-id, redirect URI, issuer, scopes, etc as shown in below code snippet
+
+```dart
+    final AuthorizationServiceConfiguration serviceConfiguration =
+        AuthorizationServiceConfiguration('https://$authDomain/authorize',
+            'https://$authDomain/token?tenantDomain=$TENANT_DOMAIN');
+
+    final AuthorizationResponse authorizationResponse =
+        await flutterAppAuth.authorize(
+      AuthorizationRequest(clientId, redirectUri,
+          issuer: 'https://$authDomain',
+          scopes: <String>['openid', 'profile', 'offline_access'],
+          serviceConfiguration: serviceConfiguration),
+    );
+```
 
 Then key manager will redirect the web browser to login page. Next user gets following UIs to enter login details and give consent:
 
 <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/browserLogin1.jpeg" alt="Your image title" height="450" width="250"/> | <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/browserLogin2.jpeg" alt="Your image title" height="450" width="250"/>
 
- Once logged in, Key manager redirects back to redirect URL with auth code. 
+ Once login details are entered, WSO2 key manager validates them and redirects back to the pre-configured [redirect URI](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/utils/constants.dart#L26) with **auth code** if validation successful. 
+ 
+ Next from code level it invokes '/token' endpoint to get tokens with the received **auth code** and **code verifier** which is generated by 'flutter_appauth' underneath (we receive 'code verifier' back in the response from the previous call. Therefore we passes 'authorizationResponse.codeVerifier' to the '/token' request) since it's required in PKCE flow for security validation. '/token' request implementation is shown in the below code snippet:
+ 
+ ```dart
+     final TokenResponse tokenResponse = await flutterAppAuth.token(TokenRequest(
+        clientId, redirectUri,
+        serviceConfiguration: serviceConfiguration,
+        authorizationCode: authorizationResponse.authorizationCode,
+        codeVerifier: authorizationResponse.codeVerifier));
+ ```
+
+With a successful response we receive **refresh_token, access_token and id_token**. Flutter has a library called [flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage) to securely persist data locally. Therefore once we receive tokens, we add them to secure storage (we can read those values from secure storage when it's needed) as follows:
+ 
+ ```dart
+    await secureStorage.write(
+        key: 'refresh_token', value: tokenResponse.refreshToken);
+    await secureStorage.write(
+        key: 'access_token', value: tokenResponse.accessToken);
+    await secureStorage.write(key: 'id_token', value: tokenResponse.idToken);
+ ```
 
  - ### API invocation with a valid access token
 
 <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramApiInvocation200.jpg" alt="Your image title" height="300" width="1000"/>
 
+Once login and token generation flow is successful, user is navigated to the 'home' page where user can enter a capital of a country and search country details. 
+
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/home.jpeg" alt="Your image title" height="450" width="250"/>
+
+As an example we enter 'colombo' and clicks the 'search' icon in the right side of the search box.Then from code level [invokeApiAction()](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/home.dart#L109) function gets called. Inside that we send a GET request to the pre-configured [API context URL](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/utils/constants.dart#L35) with the received access token as shown in the code snippet below:
+
+```dart
+    final String url = '$API_CONTEXT_PATH$capital';
+    http.Response response = await http.get(
+      url,
+      headers: <String, String>{
+        'Authorization': 'Bearer $accessToken',
+        HttpHeaders.contentTypeHeader: ContentType.json.mimeType
+      },
+    );
+```
+In a happy path when we are sending this GET request to API Cloud gateway with a valid access token, gateway validates the access token and calls the backend to invoke backend API. If it gets successful, then sends us the JSON response with status code 200. Successful response after mapping to 'Country' objects is visible in the UI as follows:
+
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/search1.jpeg" alt="Your image title" height="450" width="250"/> | <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/search2.jpeg" alt="Your image title" height="450" width="250"/>
+
 - ### API invocation with an invalid access token (refreshing access token)
 
-<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramApiInvocation401.jpg" alt="Your image title" height="400" width="1100"/>
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramApiInvocation401.jpg" alt="Your image title" height="380" width="1100"/>
+
+Access tokens are getting expired after a defined period of time (by default it's 3600s). At that kind of a situation, when user searches a capital of a country, from application level it sends the GET request to API Cloud gateway with an invalid access token. At this point, as shown in the diagram token validation gets failed and response comes with a error message and **401 status code**.
+
+When application receives 401 response, from code level it calls to [refreshAccessToken()](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/utils/auth.dart#L76) function to refresh access token using [refresh token grant](https://docs.wso2.com/display/APICloud/Refresh+Token+Grant). Then again sends the GET request with the newly received valid access token to API Cloud gateway as shown in the below snippet:
+
+```dart
+    if (response.statusCode == 401) {
+      final String accessToken = await refreshAccessToken(
+          clientId: AUTH_CLIENT_ID,
+          redirectUri: AUTH_REDIRECT_URI,
+          issuer: AUTH_ISSUER,
+          domain: AUTH_DOMAIN);
+
+      response = await http.get(
+        url,
+        headers: <String, String>{
+          'Authorization': 'Bearer $accessToken',
+          HttpHeaders.contentTypeHeader: ContentType.json.mimeType
+        },
+      );
+    }
+```
+
+With that user gets the expected successful results in the home page. Checking the status code for 200 and 401 runs underneath from code level so that refreshing access token and resending the GET request if we receive 401 from first request is not visible to enduser. As a practice we recommend only to refresh token if it's expired/invalid. Unless regenerating a token for every call is very costly.
 
 - ### Logout
 
 <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramLogout.jpg" alt="Your image title" height="200" width="500"/>
 
+If user wants to logout from the application, s/he needs to click 'power' icon in the tab bar right side corner. Then it will pop up a confirmation message as follows:
 
-You will build a mobile app with following UIs:
-
-- Login UIs
-
-| <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/login.jpeg" alt="Your image title" height="450" width="250"/> | <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/browserLogin1.jpeg" alt="Your image title" height="450" width="250"/> | <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/browserLogin2.jpeg" alt="Your image title" height="450" width="250"/> |
-
-- Home / Search UIs
-
-| <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/home.jpeg" alt="Your image title" height="450" width="250"/>
-| <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/search1.jpeg" alt="Your image title" height="450" width="250"/> | <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/search2.jpeg" alt="Your image title" height="450" width="250"/>
-
-- Logout UI
 <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/logoutConfrmation.jpeg" alt="Your image title" height="450" width="250"/>
+
+If user clicks 'Yes', then from code level it calls [logoutAction()](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/main.dart#L160). Then it will deletd the 'refresh token' from secure storage and mark the user as false as below:
+
+```dart
+  Future<void> logoutAction() async {
+    await secureStorage.delete(key: 'refresh_token');
+    setState(() {
+      isLoggedIn = false;
+      isBusy = false;
+    });
+  }
+```
+
+Once logged out, user is navigated to the initial 'Login' page of the application.
 
 ## Setup your Environment
 Development Environment, one of:
