@@ -49,16 +49,41 @@ So in this project we will develop an application which demonstrates how a consu
 
 ## Implementation
 
-- ### Login and token generation flow
-<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramLogin_%20tokenGeneration.jpg" alt="Your image title" height="600" width="1000"/>
+First let's identify the flow of this scenario. We can devide the complete flow in to four sub flows mainly.
 
-- ### API invocation with a valid access token
-<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramApiInvocation200.jpg" alt="Your image title" height="300" width="900"/>
+- Login and token generation
+- API invocation with a valid access token
+- API invocation with an invalid access token (refreshing access token)
+- Logout
+
+Now let's go through above flows one by one in detail.
+
+- ### Login and token generation
+
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramLogin_%20tokenGeneration.jpg" alt="Your image title" height="600" width="1200"/>
+
+When user opens this mobile application, user is navigated to the 'Login' page as below:
+
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/login.jpeg" alt="Your image title" height="450" width="250"/>
+
+When user clicks 'Login to Cloud' button, from code level ['login()' function](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/utils/auth.dart#L28) gets called. Inside that function, it calls appAuth's authorize method to popup web browser with WSO2 Cloud's Key manager '/authorize'. In this call AppAuth internally generates code challenge and sends with the request. 
+
+Then key manager will redirect the web browser to login page. Next user gets following UIs to enter login details and give consent:
+
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/browserLogin1.jpeg" alt="Your image title" height="450" width="250"/> | <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/browserLogin2.jpeg" alt="Your image title" height="450" width="250"/>
+
+ Once logged in, Key manager redirects back to redirect URL with auth code. 
+
+ - ### API invocation with a valid access token
+
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramApiInvocation200.jpg" alt="Your image title" height="300" width="1000"/>
 
 - ### API invocation with an invalid access token (refreshing access token)
-<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramApiInvocation401.jpg" alt="Your image title" height="400" width="1000"/>
 
-- ### Logout flow
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramApiInvocation401.jpg" alt="Your image title" height="400" width="1100"/>
+
+- ### Logout
+
 <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramLogout.jpg" alt="Your image title" height="200" width="500"/>
 
 
