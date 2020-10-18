@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -75,8 +77,7 @@ Future<String> login(
 /// 'refresh token grant type'
 Future<String> refreshAccessToken(
     {String clientId, String redirectUri, String issuer, String domain}) async {
-  final String storedRefreshToken =
-      await secureStorage.read(key: 'refresh_token');
+  final String storedRefreshToken = await getRefreshToken();
 
   final AuthorizationServiceConfiguration serviceConfiguration =
       AuthorizationServiceConfiguration('https://$domain/authorize',
@@ -99,4 +100,23 @@ Future<String> refreshAccessToken(
 /// Function to get access token
 Future<String> getAccessToken() async {
   return secureStorage.read(key: 'access_token');
+}
+
+/// Function to get refresh token
+Future<String> getRefreshToken() async {
+  return secureStorage.read(key: 'refresh_token');
+}
+
+/// Function to clear refresh token
+Future<String> clearRefreshToken() async {
+  await secureStorage.delete(key: 'refresh_token');
+}
+
+/// Parse retrieved ID token and return the resulting Json object.
+Map<String, Object> parseIdToken(String idToken) {
+  final List<String> parts = idToken.split('.');
+  assert(parts.length == 3);
+
+  return jsonDecode(
+      utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
 }

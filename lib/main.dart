@@ -14,196 +14,35 @@
  * limitations under the License.
  */
 
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'home.dart';
 import 'login.dart';
-import 'utils/auth.dart';
-import 'utils/constants.dart';
 
 final FlutterAppAuth appAuth = FlutterAppAuth();
 const FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
 /// Main function to run app
-void main() => runApp(const Wso2CloudFlutterDemo());
+void main() => runApp(const MainWidget());
 
-/// Main widget of the app
-class Wso2CloudFlutterDemo extends StatefulWidget {
-  const Wso2CloudFlutterDemo({Key key}) : super(key: key);
+class MainWidget extends StatelessWidget {
+  const MainWidget({Key key}) : super(key: key);
 
-  @override
-  _Wso2CloudFlutterDemoState createState() => _Wso2CloudFlutterDemoState();
-}
-
-/// Class to represent main app state
-class _Wso2CloudFlutterDemoState extends State<Wso2CloudFlutterDemo> {
-  bool isBusy = false;
-  bool isLoggedIn = false;
-  String errorMessage;
-  String name;
-
-  /// Initialize app state
-  @override
-  void initState() {
-    initAction();
-    super.initState();
-  }
-
-  /// User loggedIn false by default. If user has a refresh token, get a new
-  /// access token when initializing app and set loggedIn to true.
-  Future<void> initAction() async {
-    final String storedRefreshToken =
-        await secureStorage.read(key: 'refresh_token');
-    if (storedRefreshToken == null) return;
-
-    setState(() {
-      isBusy = true;
-    });
-
-    try {
-      final String accessToken = await refreshAccessToken(
-          clientId: AUTH_CLIENT_ID,
-          redirectUri: AUTH_REDIRECT_URI,
-          issuer: AUTH_ISSUER,
-          domain: AUTH_DOMAIN);
-
-      setState(() {
-        isBusy = false;
-        isLoggedIn = true;
-      });
-    } on Exception catch (e, s) {
-      debugPrint('Error getting refresh token: $e - stack: $s');
-      // If error occurs when refreshing access token during app initialization,
-      // put the user to logged out state.
-      await logoutAction();
-    }
-  }
-
-  /// Main widget build
   @override
   Widget build(BuildContext context) {
-    Widget content;
-    if (isBusy) {
-      // If busy, show a circular progress bar
-      content = const CircularProgressIndicator();
-    } else if (isLoggedIn) {
-      // If user logged in, navigate user to home page
-      content = const Home();
-    } else {
-      // If user in logged out state, navigate user to login page
-      content = Login(loginAction, errorMessage);
-    }
-
-    // Return material app with scaffold
+    // Return MaterialApp with routes
     return MaterialApp(
-      title: 'WSO2 Cloud Flutter Demo',
+      title: "WSO2 Cloud Flutter Demo",
       theme: ThemeData(
         primarySwatch: Colors.orange,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('WSO2 Cloud Flutter Demo'),
-          actions:
-              isLoggedIn ? <Widget>[LogoutButton(logoutAction)] : <Widget>[],
-        ),
-        body: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          alignment: Alignment.center,
-          child: content,
-        ),
-      ),
-    );
-  }
-
-  /// Parse retrieved ID token and return the resulting Json object.
-  Map<String, Object> parseIdToken(String idToken) {
-    final List<String> parts = idToken.split('.');
-    assert(parts.length == 3);
-
-    return jsonDecode(
-        utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
-  }
-
-  /// Initialize user login and get the access token.
-  Future<void> loginAction() async {
-    setState(() {
-      isBusy = true;
-      errorMessage = '';
-    });
-
-    // Call to get access token. If successful set isLoggedIn to true,
-    // false otherwise.
-    final String accessToken =
-        await login(AUTH_DOMAIN, AUTH_CLIENT_ID, AUTH_REDIRECT_URI);
-
-    if (accessToken != null) {
-      setState(() {
-        isBusy = false;
-        isLoggedIn = true;
-      });
-    } else {
-      setState(() {
-        isBusy = false;
-        isLoggedIn = false;
-        errorMessage = 'Unable to login';
-      });
-    }
-  }
-
-  /// Log out user and delete refresh token from secure storage.
-  Future<void> logoutAction() async {
-    await secureStorage.delete(key: 'refresh_token');
-    setState(() {
-      isLoggedIn = false;
-      isBusy = false;
-    });
-  }
-}
-
-/// Class to render logout button and logout confirmation dialog
-class LogoutButton extends StatelessWidget {
-  final Future<void> Function() logoutAction;
-
-  const LogoutButton(this.logoutAction, {Key key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.power_settings_new),
-      onPressed: () {
-        // show the dialog
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text("Logout"),
-              content: const Text('Do you want to logout?'),
-              actions: <Widget>[
-                FlatButton(
-                  child: Text("No"),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                FlatButton(
-                  child: Text("Yes"),
-                  // If yes, logout use from app
-                  onPressed: () async {
-                    await logoutAction();
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      },
+      // Start the app with the "/" named route. In this case, the app starts
+      // on the FirstScreen widget.
+      initialRoute: '/login',
+      routes: {'/home': (context) => Home(), '/login': (context) => Login()},
     );
   }
 }

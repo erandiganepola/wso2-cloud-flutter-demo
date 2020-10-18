@@ -15,11 +15,11 @@
  */
 
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import 'services/services.dart';
 import 'utils/auth.dart';
 import 'utils/constants.dart';
 
@@ -35,8 +35,10 @@ class Home extends StatefulWidget {
 /// Class to represent home page's state
 class _HomeState extends State<Home> {
   bool isBusy = false;
-  List<Country> countries;
   String errorMessage;
+  String name;
+  List<Country> countries;
+
   final TextEditingController textController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -65,42 +67,56 @@ class _HomeState extends State<Home> {
           child: Icon(Icons.search, size: 150, color: Colors.grey));
     }
 
-    return Form(
-      key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-              child: Row(children: <Widget>[
-                Expanded(
-                    flex: 1,
-                    child: TextFormField(
-                      decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(vertical: 5),
-                        hintText: 'Enter capital city',
-                      ),
-                      validator: (value) {
-                        if (value.isEmpty) {
-                          return 'Please enter a capital city';
-                        }
-                        return null;
-                      },
-                      controller: textController,
-                    )),
-                IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () {
-                    // When user clicks the search button, invokeApiAction() is
-                    // called to get country search results for a given capital.
-                    if (_formKey.currentState.validate()) {
-                      invokeApiAction(textController.text);
-                    }
-                  },
-                )
-              ])),
-          contentElement,
-        ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('WSO2 Cloud Flutter Demo'),
+        actions: <Widget>[LogoutButton(logoutAction)],
+      ),
+      body: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        alignment: Alignment.center,
+        child: isBusy
+            ? const CircularProgressIndicator()
+            : Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 10),
+                        child: Row(children: <Widget>[
+                          Expanded(
+                              flex: 1,
+                              child: TextFormField(
+                                decoration: const InputDecoration(
+                                  contentPadding:
+                                      EdgeInsets.symmetric(vertical: 5),
+                                  hintText: 'Enter capital city',
+                                ),
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    return 'Please enter a capital city';
+                                  }
+                                  return null;
+                                },
+                                controller: textController,
+                              )),
+                          IconButton(
+                            icon: Icon(Icons.search),
+                            onPressed: () {
+                              // When user clicks the search button, invokeApiAction() is
+                              // called to get country search results for a given capital.
+                              if (_formKey.currentState.validate()) {
+                                invokeApiAction(textController.text);
+                              }
+                            },
+                          )
+                        ])),
+                    contentElement,
+                  ],
+                ),
+              ),
       ),
     );
   }
@@ -116,35 +132,22 @@ class _HomeState extends State<Home> {
     //Access token should not be empty by this point since user already loggedin
     final String accessToken = await getAccessToken();
 
-    // Sends a get request to configured API context URL with access token
-    final String url = '$API_CONTEXT_PATH$capital';
-    http.Response response = await http.get(
-      url,
-      headers: <String, String>{
-        'Authorization': 'Bearer $accessToken',
-        HttpHeaders.contentTypeHeader: ContentType.json.mimeType
-      },
-    );
-
+    http.Response response = await fetchCountries(capital, accessToken);
     // If response's status code is 401, access token is expired. Hence call to
     // refreshAccessToken() function to get a new access token.
     if (response.statusCode == 401) {
+      debugPrint(
+          'Got response: status: ${response.statusCode} -> ${response.body}. '
+          'Hence refresh access token!');
+
       final String accessToken = await refreshAccessToken(
           clientId: AUTH_CLIENT_ID,
           redirectUri: AUTH_REDIRECT_URI,
           issuer: AUTH_ISSUER,
           domain: AUTH_DOMAIN);
-      debugPrint(
-          'Got response: status: ${response.statusCode} -> ${response.body}');
 
       // Call API context URL with new access token
-      response = await http.get(
-        url,
-        headers: <String, String>{
-          'Authorization': 'Bearer $accessToken',
-          HttpHeaders.contentTypeHeader: ContentType.json.mimeType
-        },
-      );
+      response = await fetchCountries(capital, accessToken);
     }
 
     // If response's status code is 200, map response to Country objects.
@@ -172,6 +175,18 @@ class _HomeState extends State<Home> {
         errorMessage = response.body;
       });
     }
+  }
+
+  /// Log out user and delete refresh token from secure storage.
+  Future<void> logoutAction() async {
+    await clearRefreshToken();
+
+    setState(() {
+      isBusy = false;
+    });
+
+    await Navigator.pushNamedAndRemoveUntil(
+        context, '/login', (route) => false);
   }
 }
 
@@ -212,5 +227,48 @@ class CountryWidget extends StatelessWidget {
           Text('Region: ${country.region}'),
           Text('Population: ${country.population}')
         ]));
+  }
+}
+
+/// Class to render logout button and logout confirmation dialog
+class LogoutButton extends StatelessWidget {
+  final Future<void> Function() logoutAction;
+
+  const LogoutButton(this.logoutAction, {Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.power_settings_new),
+      onPressed: () {
+        // show the dialog
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Logout"),
+              content: const Text('Do you want to logout?'),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("No"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                FlatButton(
+                  child: Text("Yes"),
+                  // If yes, logout use from app
+                  onPressed: () async {
+                    await logoutAction();
+                    await Navigator.pushNamedAndRemoveUntil(
+                        context, "/login", (route) => false);
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 }

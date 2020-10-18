@@ -15,30 +15,111 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutterdemo/utils/auth.dart';
+import 'package:flutterdemo/utils/constants.dart';
 
 /// Login Widget -> Shows the login button and handles its click event.
-class Login extends StatelessWidget {
-  final Future<void> Function() loginAction;
-  final String loginError;
+class Login extends StatefulWidget {
+  const Login({Key key}) : super(key: key);
 
-  const Login(this.loginAction, this.loginError, {Key key}) : super(key: key);
+  @override
+  _LoginState createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
+  bool isBusy = false;
+  String errorMessage;
+
+  /// Initialize app state
+  @override
+  void initState() {
+    super.initState();
+    initAction();
+  }
+
+  /// User loggedIn false by default. If user has a refresh token, get a new
+  /// access token when initializing app and set loggedIn to true.
+  Future<void> initAction() async {
+    if (await getRefreshToken() == null) {
+      return;
+    }
+
+    setState(() {
+      isBusy = true;
+    });
+
+    try {
+      await refreshAccessToken(
+          clientId: AUTH_CLIENT_ID,
+          redirectUri: AUTH_REDIRECT_URI,
+          issuer: AUTH_ISSUER,
+          domain: AUTH_DOMAIN);
+
+      await navigateToHome();
+    } on Exception catch (e, s) {
+      debugPrint('Error refreshing token: $e - stack: $s');
+    }
+
+    setState(() {
+      isBusy = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        RaisedButton.icon(
-          color: Colors.orange,
-          icon: Icon(Icons.account_circle),
-          label: Text('Login to Cloud'),
-          // When user clicks login button, login action is being called.
-          onPressed: () async {
-            await loginAction();
-          },
-        ),
-        Text(loginError ?? ''),
-      ],
-    );
+    return Scaffold(
+        appBar: AppBar(title: const Text('WSO2 Cloud Flutter Demo')),
+        body: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                RaisedButton.icon(
+                  color: Colors.orange,
+                  icon: Icon(Icons.account_circle),
+                  label: Text('Login to Cloud'),
+                  // When user clicks login button, login action is being called.
+                  onPressed: () async {
+                    await loginAction();
+                  },
+                ),
+                isBusy
+                    ? const CircularProgressIndicator()
+                    : Text(errorMessage ?? ''),
+              ],
+            )));
+  }
+
+  /// Initialize user login and get the access token.
+  Future<void> loginAction() async {
+    setState(() {
+      isBusy = true;
+      errorMessage = '';
+    });
+
+    // Call to get access token. If successful set isLoggedIn to true,
+    // false otherwise.
+    final String accessToken =
+        await login(AUTH_DOMAIN, AUTH_CLIENT_ID, AUTH_REDIRECT_URI);
+
+    if (accessToken != null) {
+      setState(() {
+        isBusy = false;
+      });
+
+      await navigateToHome();
+    } else {
+      setState(() {
+        isBusy = false;
+        errorMessage = 'Unable to login';
+      });
+    }
+  }
+
+  /// Navigates to home widget
+  Future<void> navigateToHome() async {
+    await Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
   }
 }
