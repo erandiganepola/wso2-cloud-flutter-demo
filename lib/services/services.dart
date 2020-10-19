@@ -22,6 +22,7 @@ import 'package:http/http.dart' as http;
 /// Function to send GET request to API context path and fetch country response
 Future<http.Response> fetchCountries(
     String tenantDomain, String capital, String accessToken) async {
+
   // Full API context path (apart from URL param attached)
   String API_CONTEXT_PATH =
       'https://$AUTH_DOMAIN/t/$tenantDomain/demo/v1.0/capital/';

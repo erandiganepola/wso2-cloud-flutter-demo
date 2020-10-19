@@ -19,7 +19,7 @@ import 'package:flutterdemo/utils/auth.dart';
 import 'package:flutterdemo/utils/constants.dart';
 import 'package:flutterdemo/utils/settings.dart';
 
-/// Login Widget -> Shows the login button and handles its click event.
+/// Login Widget -> This widget shows the login button and handles click event.
 class Login extends StatefulWidget {
   const Login({Key key}) : super(key: key);
 
@@ -27,6 +27,7 @@ class Login extends StatefulWidget {
   _LoginState createState() => _LoginState();
 }
 
+/// Class to represent login page's state
 class _LoginState extends State<Login> {
   bool isBusy = false;
   String errorMessage;
@@ -38,8 +39,8 @@ class _LoginState extends State<Login> {
     initAction();
   }
 
-  /// User loggedIn false by default. If user has a refresh token, get a new
-  /// access token when initializing app and set loggedIn to true.
+  /// If user has a refresh token, get a new access token when initializing app
+  /// and navigate to Home widget. Return otherwise.
   Future<void> initAction() async {
     if (await getRefreshToken() == null) {
       return;
@@ -66,6 +67,7 @@ class _LoginState extends State<Login> {
     });
   }
 
+  /// Return app layout with the login button in the middle.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,8 +102,8 @@ class _LoginState extends State<Login> {
       errorMessage = '';
     });
 
-    // Call to get access token. If successful set isLoggedIn to true,
-    // false otherwise.
+    // Call to get access token. If successful, navigate to Home widget.
+    // Set the error message otherwise.
     final String accessToken =
         await login(AUTH_DOMAIN, await getClientID(), AUTH_REDIRECT_URI);
 

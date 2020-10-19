@@ -25,7 +25,7 @@ import 'utils/auth.dart';
 import 'utils/constants.dart';
 
 /// Home widget -> This widget contains and handles the country search by
-/// capital
+/// capital.
 class Home extends StatefulWidget {
   const Home({Key key}) : super(key: key);
 
@@ -46,6 +46,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     Widget contentElement;
+    // If isBusy true, show progress indicator
     if (isBusy) {
       contentElement = const CircularProgressIndicator();
     } else if (countries != null && countries.isNotEmpty) {
@@ -71,53 +72,53 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('WSO2 Flutter Demo'),
+        //
         actions: <Widget>[SettingsButton(), LogoutButton(logoutAction)],
       ),
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         alignment: Alignment.center,
-        child: isBusy
-            ? const CircularProgressIndicator()
-            : Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 10),
-                        child: Row(children: <Widget>[
-                          Expanded(
-                              flex: 1,
-                              child: TextFormField(
-                                decoration: const InputDecoration(
-                                  contentPadding:
-                                      EdgeInsets.symmetric(vertical: 5),
-                                  hintText: 'Enter capital city',
-                                ),
-                                validator: (value) {
-                                  if (value.isEmpty) {
-                                    return 'Please enter a capital city';
-                                  }
-                                  return null;
-                                },
-                                controller: textController,
-                              )),
-                          IconButton(
-                            icon: Icon(Icons.search),
-                            onPressed: () {
-                              // When user clicks the search button, invokeApiAction() is
-                              // called to get country search results for a given capital.
-                              if (_formKey.currentState.validate()) {
-                                invokeApiAction(textController.text);
-                              }
-                            },
-                          )
-                        ])),
-                    contentElement,
-                  ],
-                ),
-              ),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  child: Row(children: <Widget>[
+                    Expanded(
+                        flex: 1,
+                        child: TextFormField(
+                          enabled: !isBusy,
+                          decoration: const InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(vertical: 5),
+                            hintText: 'Enter capital city',
+                          ),
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return 'Please enter a capital city';
+                            }
+                            return null;
+                          },
+                          controller: textController,
+                        )),
+                    IconButton(
+                      icon: Icon(Icons.search),
+                      onPressed: () {
+                        // When user clicks the search button, invokeApiAction()
+                        // is being called to get country search results for a
+                        // given capital.
+                        if (!isBusy && _formKey.currentState.validate()) {
+                          invokeApiAction(textController.text);
+                        }
+                      },
+                    )
+                  ])),
+              contentElement,
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -149,7 +150,7 @@ class _HomeState extends State<Home> {
           issuer: AUTH_ISSUER,
           domain: AUTH_DOMAIN);
 
-      // Call API context URL with new access token
+      // Call fetchCountries() with new access token
       response = await fetchCountries(tenantDomain, capital, accessToken);
     }
 
@@ -164,6 +165,7 @@ class _HomeState extends State<Home> {
       final List<Country> countryList =
           parsed.map<Country>((jsonObj) => Country.fromJson(jsonObj)).toList();
 
+      // Assign list of country objects to 'countries' state variable.
       setState(() {
         isBusy = false;
         countries = countryList;

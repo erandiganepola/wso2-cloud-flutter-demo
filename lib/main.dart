@@ -22,6 +22,7 @@ import 'login.dart';
 /// Main function to run app
 void main() => runApp(const MainWidget());
 
+/// Main widget -> Define the material app and routes.
 class MainWidget extends StatelessWidget {
   const MainWidget({Key key}) : super(key: key);
 
@@ -29,13 +30,13 @@ class MainWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // Return MaterialApp with routes
     return MaterialApp(
-      title: "WSO2 Cloud Flutter Demo",
+      title: "WSO2 Flutter Demo",
       theme: ThemeData(
         primarySwatch: Colors.orange,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      // Start the app with the "/" named route. In this case, the app starts
-      // on the FirstScreen widget.
+      // Start the app with the "/login" named initial route.
+      // In this case, the app starts on the Login widget.
       initialRoute: '/login',
       routes: {'/home': (context) => Home(), '/login': (context) => Login()},
     );

@@ -38,7 +38,7 @@ Future<String> login(
     // Call appAuth's authorize method to popup web browser with Keymanager (KM)
     // '/authorize'. KM will redirect the web browser to login page
     // Once logged in, KM redirects back to redirect URL with auth code.
-    // AppAuth internally generates code verifier and code challenge
+    // AppAuth internally generates code verifier and code challenge.
     final AuthorizationResponse authorizationResponse =
         await flutterAppAuth.authorize(
       AuthorizationRequest(clientId, redirectUri,
@@ -46,7 +46,6 @@ Future<String> login(
           scopes: <String>['openid', 'profile', 'offline_access'],
           serviceConfiguration: serviceConfiguration),
     );
-
     debugPrint('Authorization request successful. Obtaining access token...');
 
     // Invoke '/token' endpoint with obtained authorizationCode and codeVerifier
@@ -59,11 +58,9 @@ Future<String> login(
     debugPrint('Token request successful:${tokenResponse.accessToken}');
 
     // Add tokens to secure storage.
-    await secureStorage.write(
-        key: 'refresh_token', value: tokenResponse.refreshToken);
-    await secureStorage.write(
-        key: 'access_token', value: tokenResponse.accessToken);
-    await secureStorage.write(key: 'id_token', value: tokenResponse.idToken);
+    setRefreshToken(tokenResponse.refreshToken);
+    setAccessToken(tokenResponse.accessToken);
+    setIdToken(tokenResponse.idToken);
 
     return tokenResponse.accessToken;
   } on Exception catch (e, s) {
@@ -91,20 +88,40 @@ Future<String> refreshAccessToken(
       serviceConfiguration: serviceConfiguration));
 
   // Add new tokens to secure storage.
-  await secureStorage.write(key: 'refresh_token', value: response.refreshToken);
-  await secureStorage.write(key: 'access_token', value: response.accessToken);
+  setRefreshToken(response.refreshToken);
+  setAccessToken(response.accessToken);
 
   return response.accessToken;
 }
 
-/// Function to get access token
+/// Function to set access token to secure storage
+Future<String> setAccessToken(String accessToken) async {
+  await secureStorage.write(key: 'access_token', value: accessToken);
+}
+
+/// Function to get access token from secure storage
 Future<String> getAccessToken() async {
   return secureStorage.read(key: 'access_token');
 }
 
-/// Function to get refresh token
+/// Function to set refresh token to secure storage
+Future<String> setRefreshToken(String refreshToken) async {
+  await secureStorage.write(key: 'refresh_token', value: refreshToken);
+}
+
+/// Function to get refresh token from secure storage
 Future<String> getRefreshToken() async {
   return secureStorage.read(key: 'refresh_token');
+}
+
+/// Function to set ID token to secure storage
+Future<String> setIdToken(String idToken) async {
+  await secureStorage.write(key: 'id_token', value: idToken);
+}
+
+/// Function to get ID token from secure storage
+Future<String> getIdToken() async {
+  return secureStorage.read(key: 'id_token');
 }
 
 /// Function to clear refresh token
