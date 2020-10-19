@@ -1,0 +1,36 @@
+swagger: "2.0"
+paths:
+  /all:
+    get:
+      responses:
+        "200":
+          description: ""
+      x-auth-type: "Application & Application User"
+      x-throttling-tier: Unlimited
+  "/currency/{cop}":
+    get:
+      parameters:
+        - name: cop
+          in: path
+          required: true
+          type: string
+      responses:
+        "200":
+          description: ""
+      x-auth-type: "Application & Application User"
+      x-throttling-tier: Unlimited
+  "/capital/{capital}":
+    get:
+      parameters:
+        - name: capital
+          in: path
+          required: true
+          type: string
+      responses:
+        "200":
+          description: ""
+      x-auth-type: "Application & Application User"
+      x-throttling-tier: Unlimited
+info:
+  title: WSO2DemoCountries
+  version: v1.0
