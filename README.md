@@ -71,11 +71,11 @@ flutter pub get
 
 - ### Prerequisites to setup in WSO2 Cloud
   - Create an account in WSO2 Cloud if you don't have one and login to [Publisher portal](https://api.cloud.wso2.com/publisher).
-  - [Create an API](https://docs.wso2.com/display/APICloud/Create+and+Publish+an+API). When creating your API, add a "GET" method for the resource path "/capital/{capital}" and set the endpoint URL to "https://restcountries.eu/rest/v2". At the end your API should call [REST Countries Capital City endpoint](https://restcountries.eu/#api-endpoints-capital-city). Then publish your API.
-  - Visit WSO2 API Store and [create an application](https://docs.wso2.com/display/APICloud/Subscribe+to+and+Invoke+an+API). Enable code grant with a redirect URL (ex: org.wso2.cloud.flutterdemo://login-callback) and generate tokens.
+  - [Create an API using an existing swagger definition](https://cloud.docs.wso2.com/en/latest/learn/design-apis/design-api-using-existing-swagger/). You can find the relevant swagger in [swagger.yaml](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/swagger.yaml) file. When creating your API set context as `/demo` and set the production, sandbox backend endpoints to `https://restcountries.eu/rest/v2`. Also select `Subscription Tiers` in `Manage` tab as necessary (I have set to `Unlimited` in my API). Then publish your API. At the end of this sample your API will be calling [REST Countries Capital City endpoint](https://restcountries.eu/#api-endpoints-capital-city) as the backend.
+  - Visit WSO2 API Store and [create an application](https://docs.wso2.com/display/APICloud/Subscribe+to+and+Invoke+an+API). Enable code grant with the redirect URI. We have set redirect URI to `org.wso2.cloud.flutterdemo://login-callback` in this sample. Then generate tokens.
   - Subscribe to previously published API from the newly created application.
-  - Signin to [WSO2 Keymanager](https://keymanager.api.cloud.wso2.com/carbon/) by giving username as 'youruser@email.com@tenant' and give your password. Then enable [Allow "Authentication without client secret" configuration under the OIDC service provider config](https://is.docs.wso2.com/en/latest/learn/configuring-oauth2-openid-connect-single-sign-on/).
-  - Set relevant values in cloned project's 'lib/utils/constants.dart' file. Sample is given below:
+  - Signin to [WSO2 Keymanager](https://keymanager.api.cloud.wso2.com/carbon/) by giving username as `youruser@email.com@tenantdomain` and give your password. Then enable [`Allow authentication without client secret` configuration under the OIDC service provider config](https://is.docs.wso2.com/en/latest/learn/configuring-oauth2-openid-connect-single-sign-on/).
+  - Set relevant values to your client ID and tenant domain in cloned project's `lib/utils/constants.dart` file. Sample is given below:
   
 ```dart
 /// Global Constants
@@ -84,7 +84,7 @@ flutter pub get
 const String AUTH_DOMAIN = 'gateway.api.cloud.wso2.com';
 
 // Your client ID obtained by creating an application in WSO2 Store
-const String AUTH_CLIENT_ID = 'fO0rk7lzuWZKRofN13zmZiQc7M8a';
+const String AUTH_CLIENT_ID = 'fO0rk7lzuWZKRofN13zxxxxxxx';
 
 // Call back URL specified in your application
 const String AUTH_REDIRECT_URI = 'org.wso2.cloud.flutterdemo://login-callback';
@@ -93,11 +93,7 @@ const String AUTH_REDIRECT_URI = 'org.wso2.cloud.flutterdemo://login-callback';
 const String AUTH_ISSUER = 'https://$AUTH_DOMAIN';
 
 // Your tenant domain
-const String TENANT_DOMAIN = 'vlgunarathne';
-
-// Full API context path (apart from URL param attached)
-const String API_CONTEXT_PATH =
-    'https://$AUTH_DOMAIN/t/$TENANT_DOMAIN/demo/v1.0/capital/';
+const String TENANT_DOMAIN = 'erandi';
 ```
 
 - ### Run the Application
@@ -111,11 +107,13 @@ To run the application you have two options. Either to run in your mobile applic
 ```bash
 flutter run -d all
 ```
-- ### Login, Invoke API and Logout
+- ### Login, Invoke API, Change Settings and Logout
 
-After running the application, UI will be popped out with a button to 'Login to WSO2 Cloud'. Once user clicks it, s/he will be navigated to WSO2 authorization login page. There user needs to enter username as `youruser@email.com@tenant` and give password. Then approve access to user profile information. When it's successful, user will be directed to Home page. There you can enter a capital of a country and click search icon in the right side of the search box. You will see results in the UI. 
+After running the application, UI will be popped out with a button named `Login to WSO2 Cloud`. Once user clicks it, s/he will be navigated to WSO2 authorization login page. There user needs to enter username as `youruser@email.com@tenantdomain` and give password. Then approve access to user profile information. When it's successful, user will be navigated to Home page. In the Home page you can enter a capital of a country and click `search icon` in the right side of the search box. You will see results in the UI. 
 
-If user needs to sign out, click 'power button' in the top bar right side corner. Then confirmation box will be popped up. When you click `Yes` it will log out user from the application.
+If you need to try out the sample for different tenant domains and different client applications rather than the one you configured in the `constant.dart` file, you can change those configurations by clicking `settings icon` in the top bar. Then a dialog box will be popped up with the existing values for client ID and tenant domain. You can edit them and click `Update` to save.
+
+If user needs to sign out, click `power icon` in the top bar right side corner. Then confirmation box will be popped up. When you click `Yes` it will log out user from the application.
 
 ## Implementation
 
@@ -124,6 +122,7 @@ First let's identify the flow of this scenario. We can devide the complete flow 
 - Login and token generation
 - API invocation with a valid access token
 - API invocation with an invalid access token (refreshing access token)
+- Change settings (tenant domain and client ID)
 - Logout
 
 Now let's go through above flows one by one in detail.
@@ -230,6 +229,8 @@ When application receives 401 response, from code level it calls to [refreshAcce
 
 With that user gets the expected successful results in the home page. Checking the status code for 200 and 401 runs underneath from code level so that refreshing access token and resending the GET request if we receive 401 from first request is not visible to enduser. As a practice we recommend only to refresh token if it's expired/invalid. Unless regenerating a token for every call is very costly.
 
+- ### Change settings (tenant domain and client ID)
+
 - ### Logout
 
 <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramLogout.jpg" alt="Your image title" height="200" width="500"/>
@@ -256,6 +257,10 @@ Once logged out, user is navigated to the initial 'Login' page of the applicatio
 
 This sample mobile app can be improved further to cater your business requirements. Here we have few more suggestions to start with:
 
+ - Keep multiple main files (ex: main_dev.dart, main_prod.dart) and use flutter build target to build for different development environments or release types. You can find more details on how to do it with flutter in following documentations:
+     - [Medium article - Flavors in dart code](https://medium.com/@salvatoregiordanoo/flavoring-flutter-392aaa875f36)
+     - [Creating flavors for Flutter - Offcial documentation](https://flutter.dev/docs/deployment/flavors)
  - Handle exceptions, error codes and error messages in a more informative way.
- - Implement exponential backoff strategy 
+ - Implement exponential backoff strategy on failed requests. Refer this [example algorithm](https://cloud.google.com/iot/docs/how-tos/exponential-backoff#example_algorithm) for more details on exponential backoff strategy.
+ 
  
