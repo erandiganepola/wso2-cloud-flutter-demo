@@ -121,11 +121,26 @@ flutter run -d all
 
 - ### Login, Invoke API, Change Settings and Logout
 
-After running the application, UI will be popped out with a button named `Login to WSO2 Cloud`. Once user clicks it, s/he will be navigated to WSO2 authorization login page. There user needs to enter username as `youruser@email.com@tenantdomain` and give password. Then approve access to user profile information. When it's successful, user will be navigated to Home page. In the Home page you can enter a capital of a country and click `search icon` in the right side of the search box. You will see results in the UI. 
+After running the application, UI will be popped out with a button named `Login to Cloud`. 
+
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/login.jpeg" alt="Your image title" height="450" width="250"/>
+
+Once user clicks it, s/he will be navigated to WSO2 authorization login page. There user needs to enter username as `youruser@email.com@tenantdomain` and give password. Then approve access to user profile information. 
+
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/browserLogin1.jpeg" alt="Your image title" height="450" width="250"/> | <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/browserLogin2.jpeg" alt="Your image title" height="450" width="250"/>
+
+When it's successful, user will be navigated to Home page. In the Home page you can enter a capital of a country and click `search icon` in the right side of the search box. You will see results in the UI. 
+
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/home.jpeg" alt="Your image title" height="450" width="250"/> | 
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/search1.jpeg" alt="Your image title" height="450" width="250"/>
 
 If you need to try out the sample for different tenant domains and different client applications rather than the one you configured in the `constant.dart` file, you can change those configurations by clicking `settings icon` in the top bar. Then a dialog box will be popped up with the existing values for client ID and tenant domain. You can edit them and click `Update` to save.
 
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/updateConfigs.jpeg" alt="Your image title" height="450" width="250"/>
+
 If user needs to sign out, click `power icon` in the top bar right side corner. Then confirmation box will be popped up. When you click `Yes` it will log out user from the application.
+
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/logoutConfrmation.jpeg" alt="Your image title" height="450" width="250"/>
 
 ## Implementation
 
@@ -141,18 +156,20 @@ Now let's go through above sub topics one by one in detail.
 
 - ### Login and token generation
 
+In the following diagram we have shown how login and token generation flows work with `Authorization code grant with PKCE`. 
+
 <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramLogin_%20tokenGeneration.jpg" alt="Your image title" height="600" width="1200"/>
 
-When user opens this mobile application, user is navigated to the `Login` page as below:
+When user opens the mobile application, user is navigated to the `Login` page. For navigations it is recommended to use [Flutter routes](https://flutter.dev/docs/development/ui/navigation) when it comes to Flutter mobile apps. We have used [navigations with named routes](https://flutter.dev/docs/cookbook/navigation/named-routes) in this implementation.
 
-<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/login.jpeg" alt="Your image title" height="450" width="250"/>
+When user opens the application, from code level it starts the app with the [`/login` named initial route](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/main.dart#L40). Therefore app starts with the [Login widget](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/login.dart#L23). Inside that Login class it initializes the app and returns app layout with `Login to Cloud` button from [`Widget build(BuildContext context)`](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/login.dart#L72). 
 
-When user clicks `Login to Cloud` button, from code level [`login()` function](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/utils/auth.dart#L28) gets called. Inside that function, it calls `appAuth.authorize()` method to popup web browser with WSO2 Cloud's Key manager `/authorize` URL. In this call AppAuth internally generates **code challenge** and sends `code_challenge` and `code_challenger_algorithm` with the request since we use `authorization code grant with PKCE` flow. Apart from that, `client-id`, `redirect URI`, `scope`, `grant_type`, etc are sent as query parameters in the opened URL.
+Once user clicks `Login to Cloud` button, [loginAction()](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/login.dart#L99) gets called. Inside that function, login() function initializes user login and get the access token. Inside [login() function](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/utils/auth.dart#L30) `appAuth.authorize()` function pops up web browser with WSO2 Cloud's Key manager `/authorize` URL. In this call AppAuth internally generates **code challenge** and sends `code_challenge` and `code_challenger_algorithm` with the request since we use `authorization code grant with PKCE` flow. Apart from that, `client-id`, `redirect URI`, `scope`, `grant_type`, etc are sent as query parameters in the opened URL.
 
 ```dart
-    final AuthorizationServiceConfiguration serviceConfiguration =
-        AuthorizationServiceConfiguration('https://$authDomain/authorize',
-            'https://$authDomain/token?tenantDomain=$TENANT_DOMAIN');
+  final AuthorizationServiceConfiguration serviceConfiguration =
+      AuthorizationServiceConfiguration('https://$domain/authorize',
+          'https://$domain/token?tenantDomain=$TENANT_DOMAIN');
 
     final AuthorizationResponse authorizationResponse =
         await flutterAppAuth.authorize(
@@ -163,13 +180,11 @@ When user clicks `Login to Cloud` button, from code level [`login()` function](h
     );
 ```
 
-Then key manager will redirect the web browser to login page. Next user gets following UIs to enter login details and give consent:
+Then key manager will redirect the web browser to login page. Next user gets UIs to enter login details and give consent.
 
-<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/browserLogin1.jpeg" alt="Your image title" height="450" width="250"/> | <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/browserLogin2.jpeg" alt="Your image title" height="450" width="250"/>
-
- Once login details are entered, WSO2 key manager validates them and redirects back to the pre-configured [redirect URI](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/utils/constants.dart#L26) with **auth code** if validation successful. This `redirectURI` should match with the `redirectURI` we configure in the API store's application.
+Once login details are entered, WSO2 key manager validates them and redirects back to the pre-configured [redirect URI](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/utils/constants.dart#L26) with **auth code** if validation successful. This `redirectURI` should match with the `Callback URI` we configured in the API store's application.
  
- Next from code level it invokes `/token` endpoint to get tokens with the received **auth code** and **code verifier** which is generated by `flutter_appauth` underneath (we receive `code verifier` back in the response from the previous call. Therefore we passes `authorizationResponse.codeVerifier` to the `/token` request) since it's required in PKCE flow for security validation. `/token` request is made by the following code snippet:
+Next from code level it invokes `/token` endpoint to get tokens with the received **auth code** and **code verifier** which is generated by `flutter_appauth` underneath (We passes `codeVerifier` to the `/token` request) since it's required in PKCE flow for security validation. `/token` request is made by the following code snippet:
  
  ```dart
      final TokenResponse tokenResponse = await flutterAppAuth.token(TokenRequest(
@@ -179,91 +194,105 @@ Then key manager will redirect the web browser to login page. Next user gets fol
         codeVerifier: authorizationResponse.codeVerifier));
  ```
 
-With a successful response we receive **refresh_token, access_token and id_token**. Flutter has a library called [flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage) to securely persist data locally. Therefore once we receive tokens, we add them to secure storage (we can read those values from secure storage when it's needed) as follows:
+With a successful response we receive **refresh_token, access_token and id_token**. Flutter has a library called [flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage) to securely persist data locally. Therefore once we receive tokens, we add them to secure storage (we can read those values from secure storage when it's needed). Following code snippet show how to set and get values from secure storage:
  
  ```dart
-    await secureStorage.write(
-        key: 'refresh_token', value: tokenResponse.refreshToken);
-    await secureStorage.write(
-        key: 'access_token', value: tokenResponse.accessToken);
-    await secureStorage.write(key: 'id_token', value: tokenResponse.idToken);
+/// Function to set access token to secure storage
+Future<String> setAccessToken(String accessToken) async {
+  await secureStorage.write(key: 'access_token', value: accessToken);
+}
+
+/// Function to get access token from secure storage
+Future<String> getAccessToken() async {
+  return secureStorage.read(key: 'access_token');
+}
  ```
 
  - ### API invocation with a valid access token
 
+Following diagram shows how to invoke an already published API using a valid access token (token we retrieved from previous step).
+
 <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramApiInvocation200.jpg" alt="Your image title" height="300" width="900"/>
 
-Once login and token generation flow is successful, user is navigated to the 'home' page where user can enter a capital of a country and search country details. 
+Once login and token generation flow is successful, user is navigated to the [Homw widget](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/home.dart#L29) where user can enter a capital of a country and search country details. 
 
-<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/home.jpeg" alt="Your image title" height="450" width="250"/>
-
-As an example we enter 'colombo' and clicks the 'search' icon in the right side of the search box.Then from code level [invokeApiAction()](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/home.dart#L109) function gets called. Inside that we send a GET request to the pre-configured [API context URL](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/utils/constants.dart#L35) with the received access token as shown in the code snippet below:
+As an example we enter 'colombo' and clicks the 'search' icon in the right side of the search box.Then from code level [invokeApiAction()](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/home.dart#L127) function gets called. Inside that we call [fetchCountries()](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/services/services.dart#L23) function by passing `tenant domain, input term (capital) and access token` to send a GET request to the pre-configured API context URL. fetchCountries() functionality is shown in the code snippet below:
 
 ```dart
-    final String url = '$API_CONTEXT_PATH$capital';
-    http.Response response = await http.get(
-      url,
-      headers: <String, String>{
-        'Authorization': 'Bearer $accessToken',
-        HttpHeaders.contentTypeHeader: ContentType.json.mimeType
-      },
-    );
+Future<http.Response> fetchCountries(
+    String tenantDomain, String capital, String accessToken) async {
+
+  // Full API context path (apart from URL param attached)
+  String API_CONTEXT_PATH =
+      'https://$AUTH_DOMAIN/t/$tenantDomain/demo/v1.0/capital/';
+// Sends a get request to configured API context URL with access token
+  final String url = '$API_CONTEXT_PATH$capital';
+  http.Response response = await http.get(
+    url,
+    headers: <String, String>{
+      'Authorization': 'Bearer $accessToken',
+      HttpHeaders.contentTypeHeader: ContentType.json.mimeType
+    },
+  );
+  return response;
+}
 ```
-In a happy path when we are sending this GET request to API Cloud gateway with a valid access token, gateway validates the access token and calls the backend to invoke backend API. If it gets successful, then sends us the JSON response with status code 200. Successful response after mapping to 'Country' objects is visible in the UI as follows:
+
+In the happy path when we are sending this GET request to API Cloud gateway with a valid access token, gateway validates the access token and calls the backend to invoke backend API. If it gets successful, then sends us the JSON response with status code 200. Successful response after mapping to 'Country' objects is visible in the UI as follows:
 
 <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/search1.jpeg" alt="Your image title" height="450" width="250"/> | <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/search2.jpeg" alt="Your image title" height="450" width="250"/>
 
 - ### API invocation with an invalid access token (refreshing access token)
 
+Following diagrm shows an API invocation with an invalid access token:
+
 <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramApiInvocation401.jpg" alt="Your image title" height="380" width="1000"/>
 
 Access tokens are getting expired after a defined period of time (by default it's 3600s). At that kind of a situation, when user searches a capital of a country, from application level it sends the GET request to API Cloud gateway with an invalid access token. At this point, as shown in the diagram token validation gets failed and response comes with a error message and **401 status code**.
 
-When application receives 401 response, from code level it calls to [refreshAccessToken()](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/utils/auth.dart#L76) function to refresh access token using [refresh token grant](https://docs.wso2.com/display/APICloud/Refresh+Token+Grant). Then again sends the GET request with the newly received valid access token to API Cloud gateway as shown in the below snippet:
+When application receives 401 response, from code level it calls to [refreshAccessToken()](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/utils/auth.dart#L75) function to refresh access token using [refresh token grant](https://docs.wso2.com/display/APICloud/Refresh+Token+Grant). Then again sends the GET request with the newly received valid access token to API Cloud gateway as shown in the below snippet:
 
 ```dart
     if (response.statusCode == 401) {
       final String accessToken = await refreshAccessToken(
-          clientId: AUTH_CLIENT_ID,
+          clientId: await getClientID(),
           redirectUri: AUTH_REDIRECT_URI,
           issuer: AUTH_ISSUER,
           domain: AUTH_DOMAIN);
 
-      response = await http.get(
-        url,
-        headers: <String, String>{
-          'Authorization': 'Bearer $accessToken',
-          HttpHeaders.contentTypeHeader: ContentType.json.mimeType
-        },
-      );
+      // Call fetchCountries() with new access token
+      response = await fetchCountries(tenantDomain, capital, accessToken);
     }
 ```
 
-With that user gets the expected successful results in the home page. Checking the status code for 200 and 401 runs underneath from code level so that refreshing access token and resending the GET request if we receive 401 from first request is not visible to enduser. As a practice we recommend only to refresh token if it's expired/invalid. Unless regenerating a token for every call is very costly.
+With that user gets the expected successful results in the home page. Checking the status code for 200 and 401 runs underneath from code level so that refreshing access token and resending the GET request if we receive 401 from first request are not visible to enduser. As a practice we recommend only to refresh token if it's expired/invalid. Unless regenerating a token for every call is very costly.
 
 - ### Change settings (tenant domain and client ID)
+
+As we discussed in the [Prerequisites to setup in WSO2 Cloud](https://github.com/erandiganepola/wso2-cloud-flutter-demo#prerequisites-to-setup-in-wso2-cloud) section, user needs to update `AUTH_CLIENT_ID` and `TENANT_DOMAIN` in the `lib/utils/constants.dart` file. Therefore those configs will be used as default configs for this application. However if user needs to try the same application for different tenants, s/he can change `AUTH_CLIENT_ID` and `TENANT_DOMAIN` from mobile aplication UI level later. We have discussed how to do it in the [Login, Invoke API, Change Settings and Logout](https://github.com/erandiganepola/wso2-cloud-flutter-demo#login-invoke-api-change-settings-and-logout) section.
+
+Once user changes tenant domain and client ID from application dialog box, those values will be saved in the secure storage. Therefore from code level it checks whether these values are available when invoking the API, if not available it will use the default values configured in the `constants.dart` file. This logic is handled in the [SettingsButton class](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/home.dart#L282) from code level.
 
 - ### Logout
 
 <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramLogout.jpg" alt="Your image title" height="200" width="500"/>
 
-If user wants to logout from the application, s/he needs to click 'power' icon in the tab bar right side corner. Then it will pop up a confirmation message as follows:
-
-<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/logoutConfrmation.jpeg" alt="Your image title" height="450" width="250"/>
-
-If user clicks 'Yes', then from code level it calls [logoutAction()](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/main.dart#L160). Then it will deletd the 'refresh token' from secure storage and mark the user as false as below:
+If user wants to logout from the application, s/he needs to click 'power' icon in the tab bar right side corner. Then it will pop up a confirmation message. If user clicks 'Yes', then from code level it calls [logoutAction()](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/home.dart#L186). Then it will delete the 'refresh token' from secure storage navigate user to `Login widget` as follows:
 
 ```dart
   Future<void> logoutAction() async {
-    await secureStorage.delete(key: 'refresh_token');
+    await clearRefreshToken();
+
     setState(() {
-      isLoggedIn = false;
       isBusy = false;
     });
+
+    await Navigator.pushNamedAndRemoveUntil(
+        context, '/login', (route) => false);
   }
 ```
 
-Once logged out, user is navigated to the initial 'Login' page of the application.
+All sub sections we have discussed under [Implementation](https://github.com/erandiganepola/wso2-cloud-flutter-demo#implementation) section cover the overall implementation of the sample application. 
 
 ## What's Next
 
@@ -274,5 +303,6 @@ This sample mobile application can be improved further to cater your business us
      - [Creating flavors for Flutter - Offcial documentation](https://flutter.dev/docs/deployment/flavors)
  - Handle exceptions, error codes and error messages in a more informative way.
  - Implement exponential backoff strategy on failed requests. Refer this [example algorithm](https://cloud.google.com/iot/docs/how-tos/exponential-backoff#example_algorithm) for more details on exponential backoff strategy.
+ 
  
  
