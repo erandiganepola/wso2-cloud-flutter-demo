@@ -29,8 +29,4 @@ const String AUTH_REDIRECT_URI = 'org.wso2.cloud.flutterdemo://login-callback';
 const String AUTH_ISSUER = 'https://$AUTH_DOMAIN';
 
 // Your tenant domain
-const String TENANT_DOMAIN = 'vlgunarathne';
-
-// Full API context path (apart from URL param attached)
-const String API_CONTEXT_PATH =
-    'https://$AUTH_DOMAIN/t/$TENANT_DOMAIN/demo/v1.0/capital/';
+const String TENANT_DOMAIN = 'erandi';

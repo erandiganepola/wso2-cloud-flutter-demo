@@ -17,6 +17,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutterdemo/utils/auth.dart';
 import 'package:flutterdemo/utils/constants.dart';
+import 'package:flutterdemo/utils/settings.dart';
 
 /// Login Widget -> Shows the login button and handles its click event.
 class Login extends StatefulWidget {
@@ -50,7 +51,7 @@ class _LoginState extends State<Login> {
 
     try {
       await refreshAccessToken(
-          clientId: AUTH_CLIENT_ID,
+          clientId: await getClientID(),
           redirectUri: AUTH_REDIRECT_URI,
           issuer: AUTH_ISSUER,
           domain: AUTH_DOMAIN);
@@ -68,7 +69,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('WSO2 Cloud Flutter Demo')),
+        appBar: AppBar(title: const Text('WSO2 Flutter Demo')),
         body: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             alignment: Alignment.center,
@@ -102,7 +103,7 @@ class _LoginState extends State<Login> {
     // Call to get access token. If successful set isLoggedIn to true,
     // false otherwise.
     final String accessToken =
-        await login(AUTH_DOMAIN, AUTH_CLIENT_ID, AUTH_REDIRECT_URI);
+        await login(AUTH_DOMAIN, await getClientID(), AUTH_REDIRECT_URI);
 
     if (accessToken != null) {
       setState(() {

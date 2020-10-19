@@ -17,6 +17,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutterdemo/utils/settings.dart';
 import 'package:http/http.dart' as http;
 
 import 'services/services.dart';
@@ -69,8 +70,8 @@ class _HomeState extends State<Home> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('WSO2 Cloud Flutter Demo'),
-        actions: <Widget>[LogoutButton(logoutAction)],
+        title: const Text('WSO2 Flutter Demo'),
+        actions: <Widget>[SettingsButton(), LogoutButton(logoutAction)],
       ),
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -131,8 +132,10 @@ class _HomeState extends State<Home> {
 
     //Access token should not be empty by this point since user already loggedin
     final String accessToken = await getAccessToken();
+    String tenantDomain = await getTenantDomain();
 
-    http.Response response = await fetchCountries(capital, accessToken);
+    http.Response response =
+        await fetchCountries(tenantDomain, capital, accessToken);
     // If response's status code is 401, access token is expired. Hence call to
     // refreshAccessToken() function to get a new access token.
     if (response.statusCode == 401) {
@@ -141,13 +144,13 @@ class _HomeState extends State<Home> {
           'Hence refresh access token!');
 
       final String accessToken = await refreshAccessToken(
-          clientId: AUTH_CLIENT_ID,
+          clientId: await getClientID(),
           redirectUri: AUTH_REDIRECT_URI,
           issuer: AUTH_ISSUER,
           domain: AUTH_DOMAIN);
 
       // Call API context URL with new access token
-      response = await fetchCountries(capital, accessToken);
+      response = await fetchCountries(tenantDomain, capital, accessToken);
     }
 
     // If response's status code is 200, map response to Country objects.
@@ -264,6 +267,87 @@ class LogoutButton extends StatelessWidget {
                         context, "/login", (route) => false);
                   },
                 ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+/// Class to render settings button and configurations dialog
+class SettingsButton extends StatelessWidget {
+  SettingsButton({Key key}) : super(key: key);
+
+  final GlobalKey<FormState> _settingsFormKey = GlobalKey<FormState>();
+  final TextEditingController _clientIdFieldCon = TextEditingController();
+  final TextEditingController _tenantDomainFieldCon = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.settings),
+      onPressed: () async {
+        _tenantDomainFieldCon.text = await getTenantDomain();
+        _clientIdFieldCon.text = await getClientID();
+        // show the dialog
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Update your configurations'),
+              content: Form(
+                key: _settingsFormKey,
+                child: SingleChildScrollView(
+                    child: ListBody(children: <Widget>[
+                  TextFormField(
+                    controller: _tenantDomainFieldCon,
+                    textInputAction: TextInputAction.go,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(hintText: "Tenant Domain"),
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Please enter your tenant domain';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _clientIdFieldCon,
+                    textInputAction: TextInputAction.go,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(hintText: "Client ID"),
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Please enter your client ID';
+                      }
+                      return null;
+                    },
+                  )
+                ])),
+              ),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("Cancel"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                FlatButton(
+                  child: new Text('Update'),
+                  onPressed: () async {
+                    if (_settingsFormKey.currentState.validate()) {
+                      debugPrint(
+                          'Writing new configurations to secure storage: '
+                          'Tenant Domain - ${_tenantDomainFieldCon.text}, '
+                          'Client ID - ${_clientIdFieldCon.text}');
+                      setTenantDomain(_tenantDomainFieldCon.text);
+                      setClientID(_clientIdFieldCon.text);
+                      Navigator.pop(context);
+                    }
+                  },
+                )
               ],
             );
           },
