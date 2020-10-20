@@ -303,4 +303,5 @@ This sample mobile application can be improved further to cater your business us
      - [Creating flavors for Flutter - Offcial documentation](https://flutter.dev/docs/deployment/flavors)
  - Handle exceptions, error codes and error messages in a more informative way.
  - Implement exponential backoff strategy on failed requests. Refer this [example algorithm](https://cloud.google.com/iot/docs/how-tos/exponential-backoff#example_algorithm) for more details on exponential backoff strategy.
+ - Users can theme WSO2 authorization login pages matching to their organization logo and theme. Drop an email to `cloud@wso2.com` if you are interested in trying out this with WSO2 Cloud. Find more details on theming login pages in product documentation from [this link](https://is.docs.wso2.com/en/5.9.0/develop/customizing-login-pages-for-service-providers/). 
  
