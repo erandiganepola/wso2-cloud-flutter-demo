@@ -158,7 +158,7 @@ Now let's go through above sub topics one by one in detail.
 
 In the following diagram we have shown how login and token generation flows work with `Authorization code grant with PKCE`. 
 
-<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramLogin_%20tokenGeneration.jpg" alt="Your image title" height="550" width="1200"/>
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramLogin_%20tokenGeneration.jpg" alt="Your image title" height="550" width="1000"/>
 
 When user opens the mobile application, user is navigated to the `Login` page. For navigations it is recommended to use [Flutter routes](https://flutter.dev/docs/development/ui/navigation) when it comes to Flutter mobile apps. We have used [navigations with named routes](https://flutter.dev/docs/cookbook/navigation/named-routes) in this implementation.
 
@@ -246,7 +246,7 @@ In the happy path when we are sending this GET request to API Cloud gateway with
 
 Following diagram shows an API invocation with an invalid access token:
 
-<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramApiInvocation401.jpg" alt="Your image title" height="350" width="1000"/>
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramApiInvocation401.jpg" alt="Your image title" height="350" width="900"/>
 
 Access tokens are getting expired after a defined period of time (by default it's 3600s). At that kind of a situation, when user searches a capital of a country, from application level it sends the GET request to API Cloud gateway with an invalid access token. At this point, as shown in the diagram, token validation gets failed and response comes with a error message and **401 status code**.
 
