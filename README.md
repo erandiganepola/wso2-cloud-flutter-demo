@@ -123,24 +123,24 @@ flutter run -d all
 
 After running the application, UI will be popped out with a button named `Login to Cloud`. 
 
-<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/login.jpeg" alt="Your image title" height="450" width="250"/>
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/login.jpeg" alt="Your image title" height="450" width="230"/>
 
 Once user clicks it, s/he will be navigated to WSO2 authorization login page. There user needs to enter username as `youruser@email.com@tenantdomain` and give password. Then approve access to user profile information. 
 
-<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/browserLogin1.jpeg" alt="Your image title" height="450" width="250"/> | <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/browserLogin2.jpeg" alt="Your image title" height="450" width="250"/>
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/browserLogin1.jpeg" alt="Your image title" height="450" width="230"/> | <img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/browserLogin2.jpeg" alt="Your image title" height="450" width="230"/>
 
 When it's successful, user will be navigated to Home page. In the Home page you can enter a capital of a country and click `search icon` in the right side of the search box. You will see results in the UI. 
 
-<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/home.jpeg" alt="Your image title" height="450" width="250"/> | 
-<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/search1.jpeg" alt="Your image title" height="450" width="250"/>
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/home.jpeg" alt="Your image title" height="450" width="230"/> | 
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/search1.jpeg" alt="Your image title" height="450" width="230"/>
 
 If you need to try out the sample for different tenant domains and different client applications rather than the one you configured in the `constant.dart` file, you can change those configurations by clicking `settings icon` in the top bar. Then a dialog box will be popped up with the existing values for client ID and tenant domain. You can edit them and click `Update` to save.
 
-<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/updateConfigs.jpeg" alt="Your image title" height="450" width="250"/>
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/updateConfigs.jpeg" alt="Your image title" height="450" width="230"/>
 
 If user needs to sign out, click `power icon` in the top bar right side corner. Then confirmation box will be popped up. When you click `Yes` it will log out user from the application.
 
-<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/logoutConfrmation.jpeg" alt="Your image title" height="450" width="250"/>
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/logoutConfrmation.jpeg" alt="Your image title" height="450" width="230"/>
 
 ## Implementation
 
@@ -158,7 +158,7 @@ Now let's go through above sub topics one by one in detail.
 
 In the following diagram we have shown how login and token generation flows work with `Authorization code grant with PKCE`. 
 
-<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramLogin_%20tokenGeneration.jpg" alt="Your image title" height="600" width="1200"/>
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramLogin_%20tokenGeneration.jpg" alt="Your image title" height="550" width="1200"/>
 
 When user opens the mobile application, user is navigated to the `Login` page. For navigations it is recommended to use [Flutter routes](https://flutter.dev/docs/development/ui/navigation) when it comes to Flutter mobile apps. We have used [navigations with named routes](https://flutter.dev/docs/cookbook/navigation/named-routes) in this implementation.
 
@@ -246,7 +246,7 @@ In the happy path when we are sending this GET request to API Cloud gateway with
 
 Following diagram shows an API invocation with an invalid access token:
 
-<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramApiInvocation401.jpg" alt="Your image title" height="380" width="1000"/>
+<img src="https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/resources/images/DiagramApiInvocation401.jpg" alt="Your image title" height="350" width="1000"/>
 
 Access tokens are getting expired after a defined period of time (by default it's 3600s). At that kind of a situation, when user searches a capital of a country, from application level it sends the GET request to API Cloud gateway with an invalid access token. At this point, as shown in the diagram, token validation gets failed and response comes with a error message and **401 status code**.
 
