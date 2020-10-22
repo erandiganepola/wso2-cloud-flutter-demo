@@ -1,4 +1,4 @@
-# Securely consuming WSO2 API Cloud APIs with Flutter
+# Securely Consume WSO2 API Cloud APIs using Flutter
 
 ### Content
 - [Introduction](https://github.com/erandiganepola/wso2-cloud-flutter-demo#introduction)
@@ -26,7 +26,7 @@ With mobile revolution, businesses tend to provide their products and services v
 
 When developing mobile applications, technology stack, security and usability are the main concerns. The _“write once, run anywhere”_ approach that comes with cross platform  applications allows developers to utilize a single code on multiple platforms, which greatly reduces costs and shortens the development time , unlike native apps.
 
-When invoking APIs securely, shipping credentials/access tokens (ex: client-secrets) with the application is not recommended because they can be easily exposed. The proposed approach is using [authorization code grant type](https://is.docs.wso2.com/en/latest/learn/authorization-code-grant/) which authenticates with an authorization server using a combination of client-id and authorization code. But then again authorization code can be intercepted. Therefore the recommended way for mobile applications is ['authorization code grant with proof key for code exchange'](https://is.docs.wso2.com/en/5.9.0/learn/try-authorization-code-grant/). Refer the [RFC-7636 spec](https://tools.ietf.org/html/rfc7636) on Proof Key for Code Exchange (PKCE) by OAuth Public Clients for more details.
+When invoking APIs securely, embed the credentials/access tokens (ex: client-secrets) in source code is not recommended because they can be easily exposed. The proposed approach is using [authorization code grant type](https://is.docs.wso2.com/en/latest/learn/authorization-code-grant/) which authenticates with an authorization server using a combination of client-id and authorization code. But then again authorization code can be intercepted. Therefore the recommended way for mobile applications is ['authorization code grant with proof key for code exchange'](https://is.docs.wso2.com/en/5.9.0/learn/try-authorization-code-grant/). Refer the [RFC-7636 spec](https://tools.ietf.org/html/rfc7636) on Proof Key for Code Exchange (PKCE) by OAuth Public Clients for more details.
 
 In this project, we have written a [Flutter](https://flutter.dev/) mobile application which securely invokes an API through [WSO2 API Cloud](https://wso2.com/api-management/cloud/) using `authorization code grant with PKCE` .
 
@@ -83,7 +83,7 @@ flutter pub get
   
   - Subscribe to previously published API from the newly created application.
   
-  - Sign in to [WSO2 Keymanager](https://keymanager.api.cloud.wso2.com/carbon/) by giving username as `youruser@email.com@tenantdomain` and give your password. Then enable [Allow authentication without client secret configuration under the OIDC service provider config](https://is.docs.wso2.com/en/latest/learn/configuring-oauth2-openid-connect-single-sign-on/).
+  - You need to enable ["Allow authentication without client secret configuration" under the OIDC service provider config](https://is.docs.wso2.com/en/latest/learn/configuring-oauth2-openid-connect-single-sign-on/) in WSO2 API Cloud to use `Authorization code grant type with PKCE` **without client secret**. For that please send an email to `cloud@wso2.com` to configure it for your application. 
   
   - Set relevant values as your `AUTH_CLIENT_ID` and `TENANT_DOMAIN` in cloned project's `lib/utils/constants.dart` file. Sample is given below:
   
