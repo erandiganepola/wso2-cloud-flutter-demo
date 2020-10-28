@@ -1,4 +1,4 @@
-# Securely Consume WSO2 API Cloud APIs using Flutter
+# Securely Consume WSO2 API Cloud APIs using Flutter Mobile App
 
 ### Content
 - [Introduction](https://github.com/erandiganepola/wso2-cloud-flutter-demo#introduction)
@@ -35,7 +35,7 @@ In this project, we have written a [Flutter](https://flutter.dev/) mobile applic
 
 ## Problem
 
-We need to write a novel cross platform (iOS/Android) mobile application which uses single sign on (SSO) and securely invokes an existing API to reach a wider audience while providing them ease of access. Implementing recommended security standards like `authorization code grant with PKCE` ourselves is time consuming. 
+Companies build mobile apps on both iOS and Android and thus it helps businesses to target customers across the world. But developing specific native apps increases cost and consumes time.Therefore we need to write a novel cross platform (iOS/Android) mobile application which uses single sign on (SSO) and securely invokes an existing API to reach a wider audience while providing them ease of access. Implementing recommended security standards like `authorization code grant with PKCE` ourselves is time consuming. 
 
 ## Solution
 
