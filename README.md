@@ -82,7 +82,7 @@ flutter pub get
   
   - [Create an API using an existing swagger definition](https://cloud.docs.wso2.com/en/latest/learn/design-apis/design-api-using-existing-swagger/). You can find the relevant swagger in [swagger.yaml](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/swagger.yaml) file. When creating your API, set context as `/demo` and set the production, sandbox backend endpoints to `https://restcountries.eu/rest/v2`. Also select `Subscription Tiers` in `Manage` tab as necessary (I have set to `Unlimited` in my API). Then publish your API. At the end of this demo your API will be calling [REST Countries Capital City endpoint](https://restcountries.eu/#api-endpoints-capital-city) as the backend.
   
-  - Visit WSO2 API Store and [create an application](https://docs.wso2.com/display/APICloud/Subscribe+to+and+Invoke+an+API). Enable (put a tick for the `Code` grant box) code grant with the callback URI. We have set callback URI to `org.wso2.cloud.flutterdemo://login-callback` in this sample. Then generate keys.
+  - Visit WSO2 API Store and [create an application](https://docs.wso2.com/display/APICloud/Subscribe+to+and+Invoke+an+API). Enable (put a tick for the `Code` grant box) code grant with the callback URI. We have set callback URI to `org.wso2.cloud.flutterdemo://login-callback` in this sample. Then generate keys. Client ID/Consumer key will be useful in our next steps.
   
   - Subscribe to previously published API from the newly created application.
   
@@ -167,7 +167,16 @@ When user opens the mobile application, user is navigated to the `Login` page. F
 
 When user opens the application, from code level it starts the app with the [`/login` named initial route](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/main.dart#L40). Therefore app starts with the [Login widget](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/login.dart#L23). Inside that Login class it initializes the app and returns app layout with `Login to Cloud` button from [`Widget build(BuildContext context)`](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/login.dart#L72). 
 
-Once user clicks `Login to Cloud` button, [loginAction()](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/login.dart#L99) gets called. Inside that function, [login() function initializes](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/utils/auth.dart#L30) user login and get the access token. Inside login() function `appAuth.authorize()` function pops up web browser with WSO2 Cloud's Key manager `/authorize` URL. In this call `AppAuth` internally generates **code challenge** and sends `code_challenge` and `code_challenger_algorithm` with the request since we use `authorization code grant with PKCE` flow. Apart from that, `client-id`, `redirect URI`, `scope`, `grant_type`, etc are sent as query parameters in the opened URL.
+Once user clicks `Login to Cloud` button, [loginAction()](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/login.dart#L99) gets called. Inside that function, [login() function initializes](https://github.com/erandiganepola/wso2-cloud-flutter-demo/blob/master/lib/utils/auth.dart#L30) user login and get the access token. Inside login() function `appAuth.authorize()` function pops up web browser with WSO2 Cloud's Key manager `/authorize` URL. In this call `AppAuth` internally generates **code challenge** and sends `code_challenge` and `code_challenger_algorithm (SHA256)` with the request since we use `authorization code grant with PKCE` flow. Apart from that, `client-id`, `redirect URI`, `scope`, `grant_type`, etc are sent as query parameters in the opened URL.
+
+Followings explain the parameters we are using in these code level authentication requests:
+
+- `client_id` : Consumer ID you obtained in [Prerequisites to setup in WSO2 Cloud](https://github.com/erandiganepola/wso2-cloud-flutter-demo#prerequisites-to-setup-in-wso2-cloud) section by creating an application in WSO2 API Store.
+- `redirect_uri` : Call back URI we configured when creating the application/configuring constants file in [Prerequisites to setup in WSO2 Cloud](https://github.com/erandiganepola/wso2-cloud-flutter-demo#prerequisites-to-setup-in-wso2-cloud) section.
+- `scope` : OAuth2 scopes required (which permissions should be delegated to the client)
+- `state`: A random string used for CSRF protection. Also this gives your app a chance to persist data between the user being directed to the authorization server and back again, such as using the state parameter as a session key.
+
+Following code snippet shows the implementation of the auth request:
 
 ```dart
   final AuthorizationServiceConfiguration serviceConfiguration =
