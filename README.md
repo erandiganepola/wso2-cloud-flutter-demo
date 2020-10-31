@@ -63,13 +63,13 @@ Development Environment, one of:
 
 These IDEs integrate well with Flutter. You will need an installation of the Dart and Flutter plugins, regardless of the IDE you decide to use.
 
-Next download and install Flutter [SDK](https://flutter.dev/docs/get-started/install) and set path in your `.bashrc` file and source it.
+Next download and [install Flutter SDK](https://flutter.dev/docs/get-started/install) and set path in your `.bashrc` file and source it.
 
 - ### Project Setup
 
   - Clone project - `git clone https://github.com/erandiganepola/wso2-cloud-flutter-demo.git`
 
-  - In this project you will use three main dependencies. Those are `http`, `flutter_appauth` and `flutter_secure_storage`. Refer [official documentation](https://auth0.com/blog/get-started-with-flutter-authentication/#Install-Dependencies) for more information on these dependencies.
+  - In this project you will use three main dependencies. Those are `http`, `flutter_appauth` and `flutter_secure_storage`. Refer official documentations ([http](https://pub.dev/packages/http), [flutter_appauth](https://pub.dev/packages/flutter_appauth), [flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage)) for more information on these dependencies.
 
   - Install dependencies by clicking `Pub get` in your IDE or run the following command in the project root:
 
